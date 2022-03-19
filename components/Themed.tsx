@@ -3,17 +3,18 @@
  * https://docs.expo.io/guides/color-schemes/
  */
 
-import { Text as DefaultText, View as DefaultView } from 'react-native';
+import { useMemo } from "react";
+import { Text as DefaultText, View as RNView } from "react-native";
 
-import Colors from '../constants/Colors';
-import useColorScheme from '../hooks/useColorScheme';
+import Colors from "../constants/Colors";
+import useColorScheme from "../hooks/useColorScheme";
 
 export function useThemeColor(
-  props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+  colorName: "background" | "card",
+  opts?: { light?: string; dark?: string }
 ) {
   const theme = useColorScheme();
-  const colorFromProps = props[theme];
+  const colorFromProps = opts ? opts[theme] : undefined;
 
   if (colorFromProps) {
     return colorFromProps;
@@ -22,24 +23,55 @@ export function useThemeColor(
   }
 }
 
+export function useTextColor(name: keyof typeof Colors.light.text) {
+  const theme = useColorScheme();
+
+  return Colors[theme].text[name];
+}
+
 type ThemeProps = {
   lightColor?: string;
   darkColor?: string;
 };
 
-export type TextProps = ThemeProps & DefaultText['props'];
-export type ViewProps = ThemeProps & DefaultView['props'];
+export type TextProps = ThemeProps &
+  DefaultText["props"] & {
+    size?: number;
+    weight?: "medium" | "light" | "regular" | "semibold" | "bold";
+    color?: keyof typeof Colors.light.text;
+  };
+export type ViewProps = ThemeProps & RNView["props"];
 
-export function Text(props: TextProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+export function Text({
+  style,
+  size = 16,
+  color: colorName = "body",
+  weight = "regular",
+  ...otherProps
+}: TextProps) {
+  const color = useTextColor(colorName);
+  const fontWeight = useMemo(() => {
+    switch (weight) {
+      case "light":
+        return "300";
+      case "bold":
+        return "700";
+      case "medium":
+        return "500";
+      case "semibold":
+        return "600";
+      default:
+        return "400";
+    }
+  }, [weight]);
 
-  return <DefaultText style={[{ color }, style]} {...otherProps} />;
-}
-
-export function View(props: ViewProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
-
-  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
+  return (
+    <DefaultText
+      style={[
+        { color, fontFamily: "System", fontSize: size, fontWeight },
+        style,
+      ]}
+      {...otherProps}
+    />
+  );
 }
