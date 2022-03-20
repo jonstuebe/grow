@@ -23,7 +23,9 @@ export default function EditItem({
       ]}
     >
       <ItemForm
+        type="edit"
         initialValues={item}
+        id={item.id}
         onSave={(values) => {
           onSaveChanges({
             title: values.title,

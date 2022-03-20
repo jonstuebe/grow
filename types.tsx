@@ -13,13 +13,7 @@ declare global {
 
 export type RootStackParamList = {
   Home: undefined;
-  // SavingItem: {
-  //   id: string;
-  //   title: string;
-  //   icon: string;
-  //   amount: number;
-  //   totalAmount?: number;
-  // };
+  Login: undefined;
   NotFound: undefined;
 };
 

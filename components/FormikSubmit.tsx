@@ -1,10 +1,18 @@
-import { Pressable } from "react-native";
+import { Pressable, ViewStyle } from "react-native";
 import { useFormikContext } from "formik";
 import useColorScheme from "../hooks/useColorScheme";
 import Color from "color";
 import { Text } from "./Themed";
 
-export default function FormikSubmit() {
+export default function FormikSubmit({
+  label = "Save",
+  fullWidth = true,
+  style,
+}: {
+  label?: string;
+  fullWidth?: boolean;
+  style?: ViewStyle;
+}) {
   const scheme = useColorScheme();
   const { submitForm } = useFormikContext();
 
@@ -12,7 +20,7 @@ export default function FormikSubmit() {
     <Pressable
       onPress={() => submitForm()}
       style={({ pressed }) => ({
-        width: "100%",
+        width: fullWidth ? "100%" : undefined,
         backgroundColor:
           scheme === "light"
             ? pressed
@@ -24,10 +32,11 @@ export default function FormikSubmit() {
         borderRadius: 12,
         paddingVertical: 16,
         alignItems: "center",
+        ...style,
       })}
     >
       <Text weight="semibold" size={20} style={{ color: "white" }}>
-        Save
+        {label}
       </Text>
     </Pressable>
   );

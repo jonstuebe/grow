@@ -1,18 +1,23 @@
+import React, { useEffect, useState } from "react";
 import {
   NavigationContainer,
   DefaultTheme,
   DarkTheme,
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import * as React from "react";
-import { ColorSchemeName, Pressable } from "react-native";
+import { ActivityIndicator, ColorSchemeName, View } from "react-native";
+import { Host } from "react-native-portalize";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 import NotFoundScreen from "../screens/NotFoundScreen";
 import Home from "../screens/Home";
-import { RootStackParamList } from "../types";
+import Login from "../screens/Login";
+
+import type { RootStackParamList } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
-import { Host } from "react-native-portalize";
+
 import { useThemeColor } from "../components/Themed";
+import { app } from "../firebase";
 
 export default function Navigation({
   colorScheme,
@@ -33,20 +38,62 @@ export default function Navigation({
   );
 }
 
-/**
- * A root stack navigator is often used for displaying modals on top of all other content.
- * https://reactnavigation.org/docs/modal
- */
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const auth = getAuth(app);
 
 function RootNavigator() {
+  const [status, setStatus] = useState<
+    "authenticated" | "unauthenticated" | "loading"
+  >("loading");
+
+  const backgroundColor = useThemeColor("background");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user !== null) {
+        setStatus("authenticated");
+        return;
+      }
+
+      setStatus("unauthenticated");
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  if (status === "loading") {
+    return (
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+          backgroundColor,
+        }}
+      >
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name="Home"
-        component={Home}
-        options={{ headerShown: false }}
-      />
+      {status === "authenticated" ? (
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }}
+        />
+      )}
+
       <Stack.Screen
         name="NotFound"
         component={NotFoundScreen}

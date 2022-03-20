@@ -1,14 +1,16 @@
-import { useNavigation } from "@react-navigation/native";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { Pressable, View } from "react-native";
 import { Modalize } from "react-native-modalize";
 import { Portal } from "react-native-portalize";
+import { doc, getFirestore, updateDoc } from "firebase/firestore";
 
+import { app } from "../firebase";
 import useColorScheme from "../hooks/useColorScheme";
 import { useModalize } from "../hooks/useModalize";
-import EditItem from "../screens/EditItem";
 
+import EditItem from "../screens/EditItem";
 import { Text, useThemeColor } from "./Themed";
+import { getAuth } from "firebase/auth";
 
 export interface SavingsCardProps {
   id: string;
@@ -29,10 +31,21 @@ export default function SavingsCard({
   const { ref, open, close } = useModalize();
   const backgroundColor = useThemeColor("background");
 
-  const onSaveChanges = useCallback((item: SavingsCardProps) => {
-    // @todo save to firebase
-    close();
-  }, []);
+  const onSaveChanges = useCallback(
+    async ({ id, ...item }: SavingsCardProps) => {
+      const user = getAuth(app).currentUser;
+      await updateDoc(doc(getFirestore(app), "items", id), {
+        title: item.title,
+        icon: item.icon,
+        amount: parseInt(item.amount as any as string),
+        totalAmount: parseInt(item.totalAmount as any as string),
+        uid: user?.uid,
+      });
+
+      close();
+    },
+    []
+  );
 
   return (
     <>

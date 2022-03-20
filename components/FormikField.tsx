@@ -5,7 +5,11 @@ import FormField, { FormFieldProps } from "./FormField";
 export interface FormikFieldProps
   extends Omit<FormFieldProps, "onChange" | "value" | "error"> {}
 
-export default function FormikField({ name, label }: FormikFieldProps) {
+export default function FormikField({
+  name,
+  label,
+  textInputProps,
+}: FormikFieldProps) {
   const [{ value }, { touched, error }, { setValue, setTouched }] =
     useField(name);
 
@@ -22,6 +26,7 @@ export default function FormikField({ name, label }: FormikFieldProps) {
         setValue(value);
       }}
       textInputProps={{
+        ...textInputProps,
         onBlur: () => {
           setTouched(true);
         },

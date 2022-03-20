@@ -1,11 +1,17 @@
 import { Formik } from "formik";
-import { VStack } from "react-native-stacks";
+import { HStack, VStack } from "react-native-stacks";
 import * as Yup from "yup";
-import isEmoji from "is-standard-emoji";
+import emojiRegex from "emoji-regex";
 
 import FormikEmojiField from "../components/FormikEmojiField";
 import FormikField from "../components/FormikField";
 import FormikSubmit from "../components/FormikSubmit";
+import { Pressable, View } from "react-native";
+import { Text, useTextColor } from "../components/Themed";
+import { Ionicons } from "@expo/vector-icons";
+import Color from "color";
+import { deleteDoc, doc, getFirestore } from "firebase/firestore";
+import { app } from "../firebase";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Please enter a name"),
@@ -22,7 +28,14 @@ const validationSchema = Yup.object().shape({
     .test("emoji", "Please select an ${path}", (value, _context) => {
       if (!value) return false;
 
-      return isEmoji(value);
+      const regex = emojiRegex();
+      const match = value.match(regex);
+
+      if (match && match[0] === value) {
+        return true;
+      }
+
+      return false;
     }),
 });
 
@@ -34,11 +47,20 @@ export type FormikFields = {
 };
 
 export interface ItemFormProps {
+  id?: string;
   initialValues: FormikFields;
   onSave: (values: FormikFields) => void;
+  type?: "new" | "edit";
 }
 
-export default function ItemForm({ initialValues, onSave }: ItemFormProps) {
+export default function ItemForm({
+  initialValues,
+  onSave,
+  type = "new",
+  id,
+}: ItemFormProps) {
+  const errorColor = useTextColor("error");
+
   return (
     <Formik<FormikFields>
       initialValues={initialValues}
@@ -62,7 +84,47 @@ export default function ItemForm({ initialValues, onSave }: ItemFormProps) {
             keyboardType: "numeric",
           }}
         />
-        <FormikSubmit />
+        {type === "edit" ? (
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+            }}
+          >
+            <Pressable
+              onPress={async () => {
+                try {
+                  await deleteDoc(
+                    doc(getFirestore(app), "items", id as string)
+                  );
+                  close();
+                } catch (e) {
+                  // @todo handle error
+                  console.log(e);
+                }
+              }}
+              style={({ pressed }) => ({
+                backgroundColor: pressed
+                  ? Color(errorColor).lighten(0.1).hex()
+                  : errorColor,
+                borderRadius: 12,
+                padding: 16,
+                alignItems: "center",
+                marginRight: 12,
+              })}
+            >
+              <Ionicons name="trash" size={24} color="white" />
+            </Pressable>
+            <FormikSubmit
+              fullWidth={false}
+              style={{
+                flex: 1,
+              }}
+            />
+          </View>
+        ) : (
+          <FormikSubmit />
+        )}
       </VStack>
     </Formik>
   );

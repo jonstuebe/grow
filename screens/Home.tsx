@@ -1,87 +1,65 @@
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { useMemo } from "react";
+import {
+  ActionSheetIOS,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { uniqueId } from "lodash-es";
-
-import { Text, useTextColor, useThemeColor } from "../components/Themed";
-import SavingsCard, { SavingsCardProps } from "../components/SavingsCard";
-
-import useColorScheme from "../hooks/useColorScheme";
+import { getFirestore, collection, query, where } from "firebase/firestore";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { Portal } from "react-native-portalize";
-import Color from "color";
 import { Modalize } from "react-native-modalize";
-import AddItem from "./AddItem";
+import Color from "color";
+import { getAuth, signOut } from "firebase/auth";
+
+import { app } from "../firebase";
+
+import useColorScheme from "../hooks/useColorScheme";
 import { useModalize } from "../hooks/useModalize";
 
-const data: SavingsCardProps[] = [
-  {
-    id: uniqueId(),
-    icon: "🎟️",
-    title: "Disney Trip",
-    amount: 250,
-    totalAmount: 2000,
-  },
-  {
-    id: uniqueId(),
-    icon: "🏠",
-    title: "House",
-    amount: 8000,
-    totalAmount: 30_000,
-  },
-
-  {
-    id: uniqueId(),
-    icon: "🎟️",
-    title: "Disney Trip",
-    amount: 250,
-    totalAmount: 2000,
-  },
-  {
-    id: uniqueId(),
-    icon: "🏠",
-    title: "House",
-    amount: 8000,
-    totalAmount: 30_000,
-  },
-  {
-    id: uniqueId(),
-    icon: "🎟️",
-    title: "Disney Trip",
-    amount: 250,
-    totalAmount: 2000,
-  },
-  {
-    id: uniqueId(),
-    icon: "🏠",
-    title: "House",
-    amount: 8000,
-    totalAmount: 30_000,
-  },
-  {
-    id: uniqueId(),
-    icon: "🎟️",
-    title: "Disney Trip",
-    amount: 250,
-    totalAmount: 2000,
-  },
-  {
-    id: uniqueId(),
-    icon: "🏠",
-    title: "House",
-    amount: 8000,
-    totalAmount: 30_000,
-  },
-];
+import AddItem from "./AddItem";
+import ActionSheetButton from "../components/ActionSheetButton";
+import { Text, useThemeColor } from "../components/Themed";
+import SavingsCard, { SavingsCardProps } from "../components/SavingsCard";
 
 export default function Home() {
   const scheme = useColorScheme();
+  const [user] = useAuthState(getAuth(app));
+  const [value, loading, error] = useCollection(
+    query(
+      collection(getFirestore(app), "items"),
+      where("uid", "==", user?.uid)
+    ),
+    {
+      snapshotListenOptions: { includeMetadataChanges: true },
+    }
+  );
+
+  const data = useMemo(() => {
+    let items: SavingsCardProps[] = [];
+
+    if (!loading && !error) {
+      value?.docs.map((doc) => {
+        items.push({
+          id: doc.id,
+          ...doc.data(),
+        } as SavingsCardProps);
+      });
+    }
+
+    return items;
+  }, [loading, value]);
 
   const { bottom } = useSafeAreaInsets();
-  const { ref: modalRef, open } = useModalize();
+  const { ref: modalRef, open, close } = useModalize();
 
   const backgroundColor = useThemeColor("background");
 
@@ -135,6 +113,22 @@ export default function Home() {
         }}
       />
       <Portal>
+        <ActionSheetButton
+          onPress={() => {
+            ActionSheetIOS.showActionSheetWithOptions(
+              {
+                options: ["Logout", "Cancel"],
+                destructiveButtonIndex: 0,
+                cancelButtonIndex: 1,
+              },
+              async (buttonIndex) => {
+                if (buttonIndex === 0) {
+                  await signOut(getAuth(app));
+                }
+              }
+            );
+          }}
+        />
         <Pressable
           onPress={open}
           style={({ pressed }) => ({
@@ -180,7 +174,7 @@ export default function Home() {
             backgroundColor,
           }}
         >
-          <AddItem />
+          <AddItem close={close} />
         </Modalize>
       </Portal>
     </SafeAreaView>
