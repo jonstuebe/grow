@@ -3,6 +3,7 @@ import { Pressable, View } from "react-native";
 import { Modalize } from "react-native-modalize";
 import { Portal } from "react-native-portalize";
 import { doc, getFirestore, updateDoc } from "firebase/firestore";
+import * as Haptics from "expo-haptics";
 
 import { app } from "../firebase";
 import useColorScheme from "../hooks/useColorScheme";
@@ -50,7 +51,10 @@ export default function SavingsCard({
   return (
     <>
       <Pressable
-        onPress={open}
+        onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          open();
+        }}
         style={{
           backgroundColor: scheme === "dark" ? "#3c3d40" : "#e5e5ea",
           borderRadius: 8,

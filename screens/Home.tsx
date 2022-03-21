@@ -19,6 +19,7 @@ import { Portal } from "react-native-portalize";
 import { Modalize } from "react-native-modalize";
 import Color from "color";
 import { getAuth, signOut } from "firebase/auth";
+import * as Haptics from "expo-haptics";
 
 import { app } from "../firebase";
 
@@ -114,7 +115,8 @@ export default function Home() {
       />
       <Portal>
         <ActionSheetButton
-          onPress={() => {
+          onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             ActionSheetIOS.showActionSheetWithOptions(
               {
                 options: ["Logout", "Cancel"],
@@ -130,7 +132,10 @@ export default function Home() {
           }}
         />
         <Pressable
-          onPress={open}
+          onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            open();
+          }}
           style={({ pressed }) => ({
             position: "absolute",
             bottom: bottom > 0 ? bottom : 12,
