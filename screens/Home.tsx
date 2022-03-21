@@ -30,6 +30,7 @@ import AddItem from "./AddItem";
 import ActionSheetButton from "../components/ActionSheetButton";
 import { Text, useThemeColor } from "../components/Themed";
 import SavingsCard, { SavingsCardProps } from "../components/SavingsCard";
+import Button from "../components/Button";
 
 export default function Home() {
   const scheme = useColorScheme();
@@ -67,49 +68,81 @@ export default function Home() {
   return (
     <SafeAreaView edges={["top"]} style={styles.container}>
       <FlatList
-        ListHeaderComponent={() => (
-          <LinearGradient
-            colors={
-              scheme === "light"
-                ? [
-                    "rgb(242,242,242)",
-                    "rgb(242,242,242)",
-                    "rgba(242,242,242,0.8)",
-                    "rgba(242,242,242,0)",
-                  ]
-                : [
-                    "rgb(0,0,0)",
-                    "rgb(0,0,0)",
-                    "rgba(0,0,0,0.8)",
-                    "rgba(0,0,0,0)",
-                  ]
-            }
-            locations={[0, 0.6, 0.8, 1]}
-            style={{
-              alignItems: "center",
-              paddingVertical: 120,
-            }}
-          >
-            <Text size={24} weight="medium" color="dim">
-              Total Saved
-            </Text>
-            <Text size={48} weight="semibold" color="title">
-              $
-              {data.reduce((acc, cur) => {
-                return acc + cur.amount;
-              }, 0)}
-            </Text>
-          </LinearGradient>
-        )}
+        ListHeaderComponent={() => {
+          if (data.length === 0) {
+            return null;
+          }
+
+          return (
+            <LinearGradient
+              colors={
+                scheme === "light"
+                  ? [
+                      "rgb(242,242,242)",
+                      "rgb(242,242,242)",
+                      "rgba(242,242,242,0.8)",
+                      "rgba(242,242,242,0)",
+                    ]
+                  : [
+                      "rgb(0,0,0)",
+                      "rgb(0,0,0)",
+                      "rgba(0,0,0,0.8)",
+                      "rgba(0,0,0,0)",
+                    ]
+              }
+              locations={[0, 0.6, 0.8, 1]}
+              style={{
+                alignItems: "center",
+                paddingVertical: 120,
+              }}
+            >
+              <Text size={24} weight="medium" color="dim">
+                Total Saved
+              </Text>
+              <Text size={48} weight="semibold" color="title">
+                $
+                {data.reduce((acc, cur) => {
+                  return acc + cur.amount;
+                }, 0)}
+              </Text>
+            </LinearGradient>
+          );
+        }}
         data={data}
         renderItem={({ item }) => <SavingsCard {...item} />}
         keyExtractor={({ id }) => id}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+        ListEmptyComponent={() => (
+          <View
+            style={{
+              flex: 1,
+              padding: 16,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text
+              size={28}
+              weight="semibold"
+              style={{
+                marginBottom: 24,
+              }}
+            >
+              No items found
+            </Text>
+            <Button
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                open();
+              }}
+            >
+              Add Item
+            </Button>
+          </View>
+        )}
         stickyHeaderIndices={[0]}
-        style={{
-          flex: 1,
-        }}
         contentContainerStyle={{
+          flex: 1,
           paddingBottom: bottom,
         }}
       />

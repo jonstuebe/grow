@@ -12,6 +12,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import Home from "../screens/Home";
 import Login from "../screens/Login";
+import Register from "../screens/Register";
 
 import type { RootStackParamList } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
@@ -87,11 +88,21 @@ function RootNavigator() {
           options={{ headerShown: false }}
         />
       ) : (
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{ headerShown: false }}
-        />
+        <>
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={Register}
+            options={{
+              headerLargeTitle: true,
+              headerLargeTitleShadowVisible: false,
+            }}
+          />
+        </>
       )}
 
       <Stack.Screen
