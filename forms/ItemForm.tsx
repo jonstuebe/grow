@@ -7,7 +7,7 @@ import FormikEmojiField from "../components/FormikEmojiField";
 import FormikField from "../components/FormikField";
 import FormikSubmit from "../components/FormikSubmit";
 import { Pressable, View } from "react-native";
-import { Text, useTextColor } from "../components/Themed";
+import { useTextColor } from "../components/Themed";
 import { Ionicons } from "@expo/vector-icons";
 import Color from "color";
 import { deleteDoc, doc, getFirestore } from "firebase/firestore";
@@ -16,7 +16,7 @@ import { app } from "../firebase";
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Please enter a name"),
   amount: Yup.number()
-    .positive("Must be a positive number")
+    .min(0, "Can't be a negative number")
     .typeError("Must be a number")
     .required("Please enter an amount"),
   totalAmount: Yup.number()
