@@ -25,6 +25,7 @@
     "expo-blur": "~11.0.0",
     "expo-constants": "~13.0.0",
     "expo-font": "~10.0.4",
+    "expo-haptics": "~11.1.0",
     "expo-linear-gradient": "~11.0.3",
     "expo-linking": "~3.0.0",
     "expo-splash-screen": "~0.14.0",
@@ -51,6 +52,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@babel/plugin-proposal-numeric-separator": "^7.16.7",
     "@types/color": "^3.0.3",
     "@types/lodash-es": "^4.17.6",
     "@types/react": "~17.0.21",
