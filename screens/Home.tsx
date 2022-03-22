@@ -64,8 +64,7 @@ export default function Home() {
 
   const totalSaved = useMemo(() => {
     const amount = data.reduce((acc, cur) => {
-      // multiply by 100 to get value in cents
-      return acc + cur.amount * 100;
+      return acc + cur.amount;
     }, 0);
 
     const value = Dinero({ amount, currency: "USD" });

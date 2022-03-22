@@ -13,11 +13,15 @@ export default function AddItem({ close }: { close: VoidFunction }) {
 
   const onSave = useCallback(async (values: FormikFields) => {
     const user = getAuth(app).currentUser;
+
+    const amount = parseFloat(values.amount as any) * 100;
+    const totalAmount = parseFloat(values.totalAmount as any) * 100;
+
     await addDoc(collection(getFirestore(app), "items"), {
       title: values.title,
       icon: values.icon,
-      amount: parseFloat(values.amount as any as string),
-      totalAmount: parseFloat(values.totalAmount as any as string),
+      amount,
+      totalAmount,
       uid: user?.uid,
     });
 

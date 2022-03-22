@@ -29,8 +29,8 @@ export default function EditItem({
         onSave={(values) => {
           onSaveChanges({
             title: values.title,
-            amount: values.amount as number,
-            totalAmount: values.totalAmount as number,
+            amount: values.amount ?? 0,
+            totalAmount: values.totalAmount ?? 0,
             icon: values.icon,
             id: item.id,
           });

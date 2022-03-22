@@ -38,23 +38,24 @@ export default function SavingsCard({
   const { confettiRef, startConfetti } = useConfetti();
 
   const formattedAmount = useMemo(() => {
-    return Dinero({ amount: amount * 100, currency: "USD" }).toFormat(
-      "$0,0.00"
-    );
+    return Dinero({ amount: amount, currency: "USD" }).toFormat("$0,0.00");
   }, [amount]);
 
   const onSaveChanges = useCallback(
     async ({ id, ...item }: SavingsCardProps) => {
       const user = getAuth(app).currentUser;
+      const amount = parseFloat(item.amount as any) * 100;
+      const totalAmount = parseFloat(item.totalAmount as any) * 100;
+
       await updateDoc(doc(getFirestore(app), "items", id), {
         title: item.title,
         icon: item.icon,
-        amount: parseFloat(item.amount as any as string),
-        totalAmount: parseFloat(item.totalAmount as any as string),
+        amount,
+        totalAmount,
         uid: user?.uid,
       });
 
-      if (parseFloat(item.amount as any) >= parseFloat(totalAmount as any)) {
+      if (amount >= totalAmount) {
         startConfetti();
       }
 
@@ -147,8 +148,8 @@ export default function SavingsCard({
             item={{
               id,
               title,
-              amount,
-              totalAmount,
+              amount: amount / 100,
+              totalAmount: totalAmount / 100,
               icon,
             }}
           />
