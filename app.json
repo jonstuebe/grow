@@ -22,7 +22,7 @@
       },
       "supportsTablet": true,
       "bundleIdentifier": "com.jonstuebe.grow",
-      "buildNumber": "8"
+      "buildNumber": "9"
     },
     "android": {
       "adaptiveIcon": {
