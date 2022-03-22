@@ -12,6 +12,9 @@ import { useModalize } from "../hooks/useModalize";
 import EditItem from "../screens/EditItem";
 import { Text, useThemeColor } from "./Themed";
 import { getAuth } from "firebase/auth";
+import { Ionicons } from "@expo/vector-icons";
+import Confetti from "react-native-confetti";
+import { useConfetti } from "../hooks/useConfetti";
 
 export interface SavingsCardProps {
   id: string;
@@ -31,6 +34,7 @@ export default function SavingsCard({
   const scheme = useColorScheme();
   const { ref, open, close } = useModalize();
   const backgroundColor = useThemeColor("background");
+  const { confettiRef, startConfetti } = useConfetti();
 
   const onSaveChanges = useCallback(
     async ({ id, ...item }: SavingsCardProps) => {
@@ -42,6 +46,10 @@ export default function SavingsCard({
         totalAmount: parseInt(item.totalAmount as any as string),
         uid: user?.uid,
       });
+
+      if (parseInt(item.amount as any) >= parseInt(totalAmount as any)) {
+        startConfetti();
+      }
 
       close();
     },
@@ -67,25 +75,42 @@ export default function SavingsCard({
       >
         <View
           style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
             paddingHorizontal: 16,
             paddingTop: 16,
             paddingBottom: totalAmount ? 22 : 16,
-
-            flexDirection: "row",
-            alignItems: "center",
           }}
         >
-          <Text style={{ marginRight: 16 }} size={32}>
-            {icon}
-          </Text>
-          <View>
-            <Text size={20} weight="semibold" color="title">
-              {title}
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ marginRight: 16 }} size={32}>
+              {icon}
             </Text>
-            <Text size={14} weight="semibold" color="dim">
-              ${amount}
-            </Text>
+            <View style={{ justifyContent: "center", flexDirection: "column" }}>
+              <Text size={20} weight="semibold" color="title">
+                {title}
+              </Text>
+              <Text size={14} weight="semibold" color="dim">
+                ${amount}
+              </Text>
+            </View>
           </View>
+          {amount >= totalAmount ? (
+            <View>
+              <Ionicons
+                name="checkmark-circle-outline"
+                color={"#38a04b"}
+                size={32}
+              />
+            </View>
+          ) : null}
         </View>
         {totalAmount ? (
           <View
@@ -121,6 +146,7 @@ export default function SavingsCard({
             }}
           />
         </Modalize>
+        <Confetti ref={confettiRef} confettiCount={100} />
       </Portal>
     </>
   );

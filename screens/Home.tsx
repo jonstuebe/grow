@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   ActionSheetIOS,
+  ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
@@ -20,6 +21,7 @@ import { Modalize } from "react-native-modalize";
 import Color from "color";
 import { getAuth, signOut } from "firebase/auth";
 import * as Haptics from "expo-haptics";
+import Confetti from "react-native-confetti";
 
 import { app } from "../firebase";
 
@@ -65,6 +67,20 @@ export default function Home() {
 
   const backgroundColor = useThemeColor("background");
 
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView edges={["top"]} style={styles.container}>
       <FlatList
@@ -109,37 +125,41 @@ export default function Home() {
           );
         }}
         data={data}
-        renderItem={({ item }) => <SavingsCard {...item} />}
+        renderItem={({ item }) => {
+          return <SavingsCard {...item} />;
+        }}
         keyExtractor={({ id }) => id}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-        ListEmptyComponent={() => (
-          <View
-            style={{
-              flex: 1,
-              padding: 16,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text
-              size={28}
-              weight="semibold"
+        ListEmptyComponent={() => {
+          return (
+            <View
               style={{
-                marginBottom: 24,
+                flex: 1,
+                padding: 16,
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              No items found
-            </Text>
-            <Button
-              onPress={async () => {
-                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                open();
-              }}
-            >
-              Add Item
-            </Button>
-          </View>
-        )}
+              <Text
+                size={28}
+                weight="semibold"
+                style={{
+                  marginBottom: 24,
+                }}
+              >
+                No items found
+              </Text>
+              <Button
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  open();
+                }}
+              >
+                Add Item
+              </Button>
+            </View>
+          );
+        }}
         stickyHeaderIndices={[0]}
         contentContainerStyle={{
           flex: 1,
