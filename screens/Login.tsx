@@ -2,11 +2,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { Formik } from "formik";
-import { KeyboardAvoidingView, ScrollView, View } from "react-native";
+import { useRef } from "react";
+import {
+  KeyboardAvoidingView,
+  ScrollView,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { VStack } from "react-native-stacks";
 import * as Yup from "yup";
-import Button from "../components/Button";
 import FormikField from "../components/FormikField";
 import FormikSubmit from "../components/FormikSubmit";
 import { Text, useTextColor } from "../components/Themed";
@@ -21,6 +26,7 @@ const validationSchema = Yup.object().shape({
 export default function Login() {
   const { navigate } = useNavigation();
   const scheme = useColorScheme();
+  const passwordRef = useRef<TextInput>(null);
 
   const textColor = useTextColor("dim");
 
@@ -70,43 +76,56 @@ export default function Login() {
               }
             }}
           >
-            <VStack
-              spacing={12}
-              style={{ width: "100%", paddingHorizontal: 16 }}
-            >
-              <FormikField
-                name="email"
-                label="Email"
-                textInputProps={{
-                  autoCompleteType: "email",
-                  autoCapitalize: "none",
-                  autoCorrect: false,
-                }}
-              />
-              <FormikField
-                name="password"
-                label="Password"
-                textInputProps={{
-                  autoCompleteType: "password",
-                  secureTextEntry: true,
-                  autoCapitalize: "none",
-                  autoCorrect: false,
-                }}
-              />
-              <FormikSubmit label="Submit" />
-              <Text
-                onPress={() => {
-                  navigate("Register");
-                }}
+            {({ submitForm }) => (
+              <VStack
+                spacing={8}
+                style={{ width: "100%", paddingHorizontal: 16 }}
               >
-                or{" "}
+                <FormikField
+                  name="email"
+                  label="Email"
+                  textInputProps={{
+                    autoCompleteType: "email",
+                    autoCapitalize: "none",
+                    autoCorrect: false,
+                    returnKeyType: "next",
+                    onSubmitEditing: () => {
+                      passwordRef?.current?.focus();
+                    },
+                  }}
+                />
+                <FormikField
+                  ref={passwordRef}
+                  name="password"
+                  label="Password"
+                  textInputProps={{
+                    autoCompleteType: "password",
+                    secureTextEntry: true,
+                    autoCapitalize: "none",
+                    autoCorrect: false,
+                    returnKeyType: "done",
+                    onSubmitEditing: () => {
+                      submitForm();
+                    },
+                  }}
+                />
+                <FormikSubmit label="Login" submittingLabel="Logging in..." />
                 <Text
-                  style={{ color: scheme === "light" ? "#007aff" : "#3178c6" }}
+                  onPress={() => {
+                    navigate("Register");
+                  }}
                 >
-                  Sign up
+                  or{" "}
+                  <Text
+                    style={{
+                      color: scheme === "light" ? "#007aff" : "#3178c6",
+                    }}
+                  >
+                    Sign up
+                  </Text>
                 </Text>
-              </Text>
-            </VStack>
+              </VStack>
+            )}
           </Formik>
         </ScrollView>
       </KeyboardAvoidingView>

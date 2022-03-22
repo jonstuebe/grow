@@ -16,8 +16,8 @@ export default function AddItem({ close }: { close: VoidFunction }) {
     await addDoc(collection(getFirestore(app), "items"), {
       title: values.title,
       icon: values.icon,
-      amount: parseInt(values.amount as any as string),
-      totalAmount: parseInt(values.totalAmount as any as string),
+      amount: parseFloat(values.amount as any as string),
+      totalAmount: parseFloat(values.totalAmount as any as string),
       uid: user?.uid,
     });
 

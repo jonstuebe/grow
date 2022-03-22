@@ -1,6 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { ForwardedRef, forwardRef, useRef, useState } from "react";
 import { TextInput, TextInputProps, View } from "react-native";
 import Color from "color";
+import useMergedRef from "@react-hook/merged-ref";
 
 import { Text, useTextColor, useThemeColor } from "./Themed";
 import useColorScheme from "../hooks/useColorScheme";
@@ -14,15 +15,12 @@ export interface FormFieldProps {
   textInputProps?: Omit<TextInputProps, "value" | "onChangeText">;
 }
 
-export default function FormField({
-  name,
-  label,
-  value,
-  error,
-  onChange,
-  textInputProps,
-}: FormFieldProps) {
+const FormField = forwardRef(function FormField(
+  { name, label, value, error, onChange, textInputProps }: FormFieldProps,
+  ref: ForwardedRef<TextInput>
+) {
   const textInputRef = useRef<TextInput>(null);
+  const combinedRef = useMergedRef(ref, textInputRef);
   const [isFocused, setIsFocused] = useState(false);
   const scheme = useColorScheme();
 
@@ -42,7 +40,7 @@ export default function FormField({
         {label}
       </Text>
       <TextInput
-        ref={textInputRef}
+        ref={combinedRef}
         onChangeText={(text) => {
           onChange(name, text);
         }}
@@ -90,4 +88,6 @@ export default function FormField({
       ) : null}
     </View>
   );
-}
+});
+
+export default FormField;

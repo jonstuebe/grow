@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import {
   ActionSheetIOS,
   ActivityIndicator,
@@ -21,9 +21,9 @@ import { Modalize } from "react-native-modalize";
 import Color from "color";
 import { getAuth, signOut } from "firebase/auth";
 import * as Haptics from "expo-haptics";
-import Confetti from "react-native-confetti";
 
 import { app } from "../firebase";
+import Dinero from "dinero.js";
 
 import useColorScheme from "../hooks/useColorScheme";
 import { useModalize } from "../hooks/useModalize";
@@ -61,6 +61,19 @@ export default function Home() {
 
     return items;
   }, [loading, value]);
+
+  const totalSaved = useMemo(() => {
+    const amount = data.reduce((acc, cur) => {
+      // multiply by 100 to get value in cents
+      return acc + cur.amount * 100;
+    }, 0);
+
+    const value = Dinero({ amount, currency: "USD" });
+
+    return value.hasSubUnits()
+      ? value.toFormat("$0,0.00")
+      : value.toFormat("$0,0");
+  }, [data]);
 
   const { bottom } = useSafeAreaInsets();
   const { ref: modalRef, open, close } = useModalize();
@@ -116,10 +129,7 @@ export default function Home() {
                 Total Saved
               </Text>
               <Text size={48} weight="semibold" color="title">
-                $
-                {data.reduce((acc, cur) => {
-                  return acc + cur.amount;
-                }, 0)}
+                {totalSaved}
               </Text>
             </LinearGradient>
           );
@@ -166,6 +176,47 @@ export default function Home() {
           paddingBottom: bottom,
         }}
       />
+      <Pressable
+        onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          open();
+        }}
+        style={({ pressed }) => ({
+          position: "absolute",
+          bottom: bottom > 0 ? bottom : 12,
+          right: 12,
+          width: 56,
+          height: 56,
+          borderRadius: 56 / 2,
+          backgroundColor:
+            scheme === "light"
+              ? pressed
+                ? Color("#007aff").lighten(0.1).hex()
+                : "#007aff"
+              : pressed
+              ? Color("#3178c6").lighten(0.1).hex()
+              : "#3178c6",
+          alignItems: "center",
+          justifyContent: "center",
+
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+          shadowOpacity: 0.27,
+          shadowRadius: 4.65,
+        })}
+      >
+        <Ionicons
+          name="add"
+          color={"white"}
+          size={32}
+          style={{
+            marginLeft: 2,
+          }}
+        />
+      </Pressable>
       <Portal>
         <ActionSheetButton
           onPress={async () => {
@@ -184,47 +235,7 @@ export default function Home() {
             );
           }}
         />
-        <Pressable
-          onPress={async () => {
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            open();
-          }}
-          style={({ pressed }) => ({
-            position: "absolute",
-            bottom: bottom > 0 ? bottom : 12,
-            right: 12,
-            width: 56,
-            height: 56,
-            borderRadius: 56 / 2,
-            backgroundColor:
-              scheme === "light"
-                ? pressed
-                  ? Color("#007aff").lighten(0.1).hex()
-                  : "#007aff"
-                : pressed
-                ? Color("#3178c6").lighten(0.1).hex()
-                : "#3178c6",
-            alignItems: "center",
-            justifyContent: "center",
 
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 3,
-            },
-            shadowOpacity: 0.27,
-            shadowRadius: 4.65,
-          })}
-        >
-          <Ionicons
-            name="add"
-            color={"white"}
-            size={32}
-            style={{
-              marginLeft: 2,
-            }}
-          />
-        </Pressable>
         <Modalize
           ref={modalRef}
           adjustToContentHeight

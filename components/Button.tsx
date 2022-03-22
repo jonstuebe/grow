@@ -35,8 +35,8 @@ export default function Button({
             ? Color(darkColor).lighten(0.1).hex()
             : darkColor,
         borderRadius: 12,
-        paddingVertical: 16,
         alignItems: "center",
+        justifyContent: "center",
         ...style,
       })}
     >

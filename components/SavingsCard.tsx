@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Pressable, View } from "react-native";
 import { Modalize } from "react-native-modalize";
 import { Portal } from "react-native-portalize";
@@ -8,12 +8,13 @@ import * as Haptics from "expo-haptics";
 import { app } from "../firebase";
 import useColorScheme from "../hooks/useColorScheme";
 import { useModalize } from "../hooks/useModalize";
+import { Ionicons } from "@expo/vector-icons";
+import { getAuth } from "firebase/auth";
+import Confetti from "react-native-confetti";
+import Dinero from "dinero.js";
 
 import EditItem from "../screens/EditItem";
 import { Text, useThemeColor } from "./Themed";
-import { getAuth } from "firebase/auth";
-import { Ionicons } from "@expo/vector-icons";
-import Confetti from "react-native-confetti";
 import { useConfetti } from "../hooks/useConfetti";
 
 export interface SavingsCardProps {
@@ -36,18 +37,22 @@ export default function SavingsCard({
   const backgroundColor = useThemeColor("background");
   const { confettiRef, startConfetti } = useConfetti();
 
+  const formattedAmount = useMemo(() => {
+    return Dinero({ amount, currency: "USD" }).toFormat("$0,0.00");
+  }, [amount]);
+
   const onSaveChanges = useCallback(
     async ({ id, ...item }: SavingsCardProps) => {
       const user = getAuth(app).currentUser;
       await updateDoc(doc(getFirestore(app), "items", id), {
         title: item.title,
         icon: item.icon,
-        amount: parseInt(item.amount as any as string),
-        totalAmount: parseInt(item.totalAmount as any as string),
+        amount: parseFloat(item.amount as any as string),
+        totalAmount: parseFloat(item.totalAmount as any as string),
         uid: user?.uid,
       });
 
-      if (parseInt(item.amount as any) >= parseInt(totalAmount as any)) {
+      if (parseFloat(item.amount as any) >= parseFloat(totalAmount as any)) {
         startConfetti();
       }
 
@@ -98,7 +103,7 @@ export default function SavingsCard({
                 {title}
               </Text>
               <Text size={14} weight="semibold" color="dim">
-                ${amount}
+                {formattedAmount}
               </Text>
             </View>
           </View>

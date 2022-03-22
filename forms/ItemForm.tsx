@@ -123,7 +123,7 @@ export default function ItemForm({
             />
           </View>
         ) : (
-          <FormikSubmit />
+          <FormikSubmit style={{ paddingVertical: 16 }} />
         )}
       </VStack>
     </Formik>
