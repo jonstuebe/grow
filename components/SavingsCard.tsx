@@ -38,7 +38,9 @@ export default function SavingsCard({
   const { confettiRef, startConfetti } = useConfetti();
 
   const formattedAmount = useMemo(() => {
-    return Dinero({ amount, currency: "USD" }).toFormat("$0,0.00");
+    return Dinero({ amount: amount * 100, currency: "USD" }).toFormat(
+      "$0,0.00"
+    );
   }, [amount]);
 
   const onSaveChanges = useCallback(
