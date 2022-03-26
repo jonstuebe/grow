@@ -9,8 +9,10 @@
     "web": "expo start --web",
     "eject": "expo eject",
     "test": "jest --watchAll",
+    "publish:dev": "expo publish --release-channel default",
+    "publish:prod": "expo publish --release-channel production",
     "bump": "node -r esbuild-register scripts/bump.ts",
-    "build": "yarn bump && expo publish && eas build -p ios --profile production --auto-submit",
+    "build": "eas build -p ios --profile production --auto-submit",
     "postinstall": "patch-package"
   },
   "jest": {
