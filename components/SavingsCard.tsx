@@ -1,29 +1,20 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { Pressable, View } from "react-native";
-import { Modalize } from "react-native-modalize";
-import { Portal } from "react-native-portalize";
-import { doc, getFirestore, updateDoc } from "firebase/firestore";
-import * as Haptics from "expo-haptics";
-
-import { app } from "../firebase";
-import useColorScheme from "../hooks/useColorScheme";
-import { useModalize } from "../hooks/useModalize";
 import { Ionicons } from "@expo/vector-icons";
-import { getAuth } from "firebase/auth";
-import Confetti from "react-native-confetti";
+import { useNavigation } from "@react-navigation/native";
 import Dinero from "dinero.js";
+import * as Haptics from "expo-haptics";
+import Confetti from "react-native-confetti";
+import { Portal } from "react-native-portalize";
 
-import EditItem from "../screens/EditItem";
-import { Text, useThemeColor } from "./Themed";
+import useColorScheme from "../hooks/useColorScheme";
 import { useConfetti } from "../hooks/useConfetti";
 
-export interface SavingsCardProps {
-  id: string;
-  title: string;
-  icon: string;
-  amount: number;
-  totalAmount: number;
-}
+import { Text } from "./Themed";
+
+import type { SavingsItem } from "../types";
+
+export interface SavingsCardProps extends SavingsItem {}
 
 export default function SavingsCard({
   id,
@@ -32,44 +23,21 @@ export default function SavingsCard({
   amount,
   totalAmount,
 }: SavingsCardProps) {
+  const { navigate } = useNavigation();
   const scheme = useColorScheme();
-  const { ref, open, close } = useModalize();
-  const backgroundColor = useThemeColor("background");
   const { confettiRef, startConfetti } = useConfetti();
 
   const formattedAmount = useMemo(() => {
     return Dinero({ amount: amount, currency: "USD" }).toFormat("$0,0.00");
   }, [amount]);
 
-  const onSaveChanges = useCallback(
-    async ({ id, ...item }: SavingsCardProps) => {
-      const user = getAuth(app).currentUser;
-      const amount = parseFloat(item.amount as any) * 100;
-      const totalAmount = parseFloat(item.totalAmount as any) * 100;
-
-      await updateDoc(doc(getFirestore(app), "items", id), {
-        title: item.title,
-        icon: item.icon,
-        amount,
-        totalAmount,
-        uid: user?.uid,
-      });
-
-      if (amount >= totalAmount) {
-        startConfetti();
-      }
-
-      close();
-    },
-    []
-  );
-
   return (
     <>
       <Pressable
         onPress={async () => {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          open();
+          navigate("EditItem", { id, title, icon, amount, totalAmount });
+          // open();
         }}
         style={{
           backgroundColor: scheme === "dark" ? "#3c3d40" : "#e5e5ea",
@@ -136,24 +104,6 @@ export default function SavingsCard({
         ) : null}
       </Pressable>
       <Portal>
-        <Modalize
-          ref={ref}
-          adjustToContentHeight
-          childrenStyle={{
-            backgroundColor,
-          }}
-        >
-          <EditItem
-            onSaveChanges={onSaveChanges}
-            item={{
-              id,
-              title,
-              amount: amount / 100,
-              totalAmount: totalAmount / 100,
-              icon,
-            }}
-          />
-        </Modalize>
         <Confetti ref={confettiRef} confettiCount={100} />
       </Portal>
     </>

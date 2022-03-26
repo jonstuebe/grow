@@ -4,14 +4,17 @@ import { Keyboard } from "react-native";
 export const useKeyboard = () => {
   const [keyboardDidShow, setKeyboardDidShow] = useState(false);
   const [keyboardWillShow, setKeyboardWillShow] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
-    const onKeyboardDidShow = () => {
+    const onKeyboardDidShow = (e: any) => {
       setKeyboardDidShow(true);
+      setKeyboardHeight(e.endCoordinates.height);
     };
 
     const onKeyboardDidHide = () => {
       setKeyboardDidShow(false);
+      setKeyboardHeight(0);
     };
 
     const onKeyboardWillShow = () => {
@@ -30,7 +33,7 @@ export const useKeyboard = () => {
     );
     const willHide = Keyboard.addListener(
       "keyboardWillHide",
-      onKeyboardDidHide
+      onKeyboardWillHide
     );
 
     return () => {
@@ -44,5 +47,6 @@ export const useKeyboard = () => {
   return {
     keyboardDidShow,
     keyboardWillShow,
+    keyboardHeight,
   };
 };

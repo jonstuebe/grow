@@ -19,6 +19,8 @@ import LinkingConfiguration from "./LinkingConfiguration";
 
 import { useThemeColor } from "../components/Themed";
 import { app } from "../firebase";
+import EditItem from "../screens/EditItem";
+import AddItem from "../screens/AddItem";
 
 export default function Navigation({
   colorScheme,
@@ -82,11 +84,25 @@ function RootNavigator() {
   return (
     <Stack.Navigator>
       {status === "authenticated" ? (
-        <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{ headerShown: false }}
-        />
+        <>
+          <Stack.Screen
+            name="Home"
+            component={Home}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="EditItem"
+            component={EditItem}
+            options={{
+              title: "",
+            }}
+          />
+          <Stack.Screen
+            name="AddItem"
+            component={AddItem}
+            options={{ title: "" }}
+          />
+        </>
       ) : (
         <>
           <Stack.Screen

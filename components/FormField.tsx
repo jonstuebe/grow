@@ -40,6 +40,7 @@ const FormField = forwardRef(function FormField(
         {label}
       </Text>
       <TextInput
+        {...textInputProps}
         ref={combinedRef}
         onChangeText={(text) => {
           onChange(name, text);
@@ -60,6 +61,8 @@ const FormField = forwardRef(function FormField(
               : Color(rowBackgroundColor).lighten(0.5).hex()
             : rowBackgroundColor,
         }}
+        autoCorrect={false}
+        spellCheck={false}
         onFocus={(e) => {
           setIsFocused(true);
 
@@ -75,7 +78,6 @@ const FormField = forwardRef(function FormField(
           }
         }}
         value={value}
-        {...textInputProps}
       />
       {error && error !== "" ? (
         <View

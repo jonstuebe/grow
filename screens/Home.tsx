@@ -11,30 +11,29 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import Color from "color";
+import * as Haptics from "expo-haptics";
+import Dinero from "dinero.js";
 import { getFirestore, collection, query, where } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Ionicons } from "@expo/vector-icons";
-import { Portal } from "react-native-portalize";
-import { Modalize } from "react-native-modalize";
-import Color from "color";
 import { getAuth, signOut } from "firebase/auth";
-import * as Haptics from "expo-haptics";
 
 import { app } from "../firebase";
-import Dinero from "dinero.js";
 
 import useColorScheme from "../hooks/useColorScheme";
 import { useModalize } from "../hooks/useModalize";
 
-import AddItem from "./AddItem";
 import ActionSheetButton from "../components/ActionSheetButton";
 import { Text, useThemeColor } from "../components/Themed";
 import SavingsCard, { SavingsCardProps } from "../components/SavingsCard";
 import Button from "../components/Button";
 
 export default function Home() {
+  const { navigate } = useNavigation();
   const scheme = useColorScheme();
   const [user] = useAuthState(getAuth(app));
   const [value, loading, error] = useCollection(
@@ -178,7 +177,8 @@ export default function Home() {
       <Pressable
         onPress={async () => {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          open();
+          navigate("AddItem");
+          // open();
         }}
         style={({ pressed }) => ({
           position: "absolute",
@@ -216,35 +216,23 @@ export default function Home() {
           }}
         />
       </Pressable>
-      <Portal>
-        <ActionSheetButton
-          onPress={async () => {
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            ActionSheetIOS.showActionSheetWithOptions(
-              {
-                options: ["Logout", "Cancel"],
-                destructiveButtonIndex: 0,
-                cancelButtonIndex: 1,
-              },
-              async (buttonIndex) => {
-                if (buttonIndex === 0) {
-                  await signOut(getAuth(app));
-                }
+      <ActionSheetButton
+        onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          ActionSheetIOS.showActionSheetWithOptions(
+            {
+              options: ["Logout", "Cancel"],
+              destructiveButtonIndex: 0,
+              cancelButtonIndex: 1,
+            },
+            async (buttonIndex) => {
+              if (buttonIndex === 0) {
+                await signOut(getAuth(app));
               }
-            );
-          }}
-        />
-
-        <Modalize
-          ref={modalRef}
-          adjustToContentHeight
-          childrenStyle={{
-            backgroundColor,
-          }}
-        >
-          <AddItem close={close} />
-        </Modalize>
-      </Portal>
+            }
+          );
+        }}
+      />
     </SafeAreaView>
   );
 }

@@ -1,17 +1,15 @@
-import { Formik } from "formik";
-import { HStack, VStack } from "react-native-stacks";
-import * as Yup from "yup";
+import { KeyboardAccessoryView } from "@flyerhq/react-native-keyboard-accessory-view";
 import emojiRegex from "emoji-regex";
+import { Formik } from "formik";
+import { ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { VStack } from "react-native-stacks";
+import * as Yup from "yup";
 
 import FormikEmojiField from "../components/FormikEmojiField";
 import FormikField from "../components/FormikField";
 import FormikSubmit from "../components/FormikSubmit";
-import { Pressable, View } from "react-native";
-import { useTextColor } from "../components/Themed";
-import { Ionicons } from "@expo/vector-icons";
-import Color from "color";
-import { deleteDoc, doc, getFirestore } from "firebase/firestore";
-import { app } from "../firebase";
+import { useKeyboard } from "../hooks/useKeyboard";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Please enter a name"),
@@ -47,19 +45,13 @@ export type FormikFields = {
 };
 
 export interface ItemFormProps {
-  id?: string;
   initialValues: FormikFields;
   onSave: (values: FormikFields) => void;
-  type?: "new" | "edit";
 }
 
-export default function ItemForm({
-  initialValues,
-  onSave,
-  type = "new",
-  id,
-}: ItemFormProps) {
-  const errorColor = useTextColor("error");
+export default function ItemForm({ initialValues, onSave }: ItemFormProps) {
+  const insets = useSafeAreaInsets();
+  const { keyboardWillShow } = useKeyboard();
 
   return (
     <Formik<FormikFields>
@@ -67,65 +59,62 @@ export default function ItemForm({
       validationSchema={validationSchema}
       onSubmit={onSave}
     >
-      <VStack spacing={8}>
-        <FormikField name="title" label="Name" />
-        <FormikEmojiField name="icon" label="Icon" />
-        <FormikField
-          name="amount"
-          label="Amount"
-          textInputProps={{
-            keyboardType: "numeric",
-          }}
-        />
-        <FormikField
-          name="totalAmount"
-          label="Goal Amount"
-          textInputProps={{
-            keyboardType: "numeric",
-          }}
-        />
-        {type === "edit" ? (
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
+      <KeyboardAccessoryView
+        contentContainerStyle={{
+          flex: 1,
+          marginBottom: 0,
+        }}
+        scrollableContainerStyle={{
+          flex: 1,
+          marginTop: 16,
+          marginBottom: 0,
+        }}
+        renderScrollable={(panHandlers) => (
+          <ScrollView
+            {...panHandlers}
+            keyboardDismissMode="interactive"
+            contentContainerStyle={{
+              paddingHorizontal: 16,
             }}
           >
-            <Pressable
-              onPress={async () => {
-                try {
-                  await deleteDoc(
-                    doc(getFirestore(app), "items", id as string)
-                  );
-                  close();
-                } catch (e) {
-                  // @todo handle error
-                  console.log(e);
-                }
-              }}
-              style={({ pressed }) => ({
-                backgroundColor: pressed
-                  ? Color(errorColor).lighten(0.1).hex()
-                  : errorColor,
-                borderRadius: 12,
-                padding: 16,
-                alignItems: "center",
-                marginRight: 12,
-              })}
-            >
-              <Ionicons name="trash" size={24} color="white" />
-            </Pressable>
-            <FormikSubmit
-              fullWidth={false}
-              style={{
-                flex: 1,
-              }}
-            />
-          </View>
-        ) : (
-          <FormikSubmit style={{ paddingVertical: 16 }} />
+            <VStack spacing={8}>
+              <FormikField
+                name="title"
+                label="Name"
+                textInputProps={{
+                  autoCapitalize: "none",
+                  autoCompleteType: "off",
+                  autoCorrect: false,
+                  keyboardType: "default",
+                }}
+              />
+              <FormikEmojiField name="icon" label="Icon" />
+              <FormikField
+                name="amount"
+                label="Amount"
+                textInputProps={{
+                  keyboardType: "numeric",
+                }}
+              />
+              <FormikField
+                name="totalAmount"
+                label="Goal Amount"
+                textInputProps={{
+                  keyboardType: "numeric",
+                }}
+              />
+            </VStack>
+          </ScrollView>
         )}
-      </VStack>
+      >
+        <FormikSubmit
+          style={{
+            paddingTop: 16,
+            borderRadius: 0,
+            paddingBottom: keyboardWillShow ? 16 : insets.bottom,
+          }}
+        />
+      </KeyboardAccessoryView>
     </Formik>
   );
 }

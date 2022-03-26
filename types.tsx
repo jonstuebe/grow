@@ -11,8 +11,18 @@ declare global {
   }
 }
 
+export interface SavingsItem {
+  id: string;
+  title: string;
+  icon: string;
+  amount: number;
+  totalAmount: number;
+}
+
 export type RootStackParamList = {
   Home: undefined;
+  AddItem: undefined;
+  EditItem: SavingsItem;
   Login: undefined;
   Register: undefined;
   NotFound: undefined;

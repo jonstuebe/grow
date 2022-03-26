@@ -6,6 +6,7 @@ import Button from "./Button";
 export default function FormikSubmit({
   label = "Save",
   submittingLabel = "Saving...",
+  style,
   ...props
 }: {
   label?: string;
@@ -16,7 +17,7 @@ export default function FormikSubmit({
   const { submitForm, isSubmitting } = useFormikContext();
 
   return (
-    <Button onPress={() => submitForm()} {...props}>
+    <Button onPress={() => submitForm()} style={style} {...props}>
       {isSubmitting && submittingLabel ? submittingLabel : label}
     </Button>
   );

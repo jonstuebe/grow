@@ -1,16 +1,18 @@
 import { useField } from "formik";
 import { useState } from "react";
 import { View, Pressable } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import EmojiKeyboard from "rn-emoji-keyboard";
+
 import { FormikFieldProps } from "./FormikField";
 
 import { Text, useTextColor, useThemeColor } from "./Themed";
 
 export default function FormikEmojiField({ name, label }: FormikFieldProps) {
-  const [{ value }, { error, touched }, { setValue, setTouched }] =
-    useField(name);
+  const [{ value }, { error, touched }, { setValue }] = useField(name);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
+  const insets = useSafeAreaInsets();
   const backgroundColor = useThemeColor("background");
   const rowBackgroundColor = useThemeColor("card");
   const searchBarPlaceholderColor = useTextColor("dim");
@@ -68,9 +70,9 @@ export default function FormikEmojiField({ name, label }: FormikFieldProps) {
       <EmojiKeyboard
         categoryPosition="bottom"
         open={showEmojiPicker}
-        expandable={true}
-        defaultHeight="52%"
+        expandable
         enableSearchBar
+        disableSafeArea
         searchBarStyles={{
           backgroundColor: rowBackgroundColor,
           borderRadius: 8,
@@ -80,6 +82,7 @@ export default function FormikEmojiField({ name, label }: FormikFieldProps) {
         }}
         containerStyles={{
           backgroundColor,
+          paddingBottom: insets.bottom,
         }}
         headerStyles={{
           color: textColor,
