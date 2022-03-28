@@ -15,6 +15,7 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       Home: "home",
       Login: "login",
+      Item: "item",
       EditItem: "edit",
       AddItem: "add",
       NotFound: "*",

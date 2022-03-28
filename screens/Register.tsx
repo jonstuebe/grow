@@ -5,7 +5,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
-import FormikField from "../components/FormikField";
+import FormikTextInput from "../components/FormikTextInput";
 import FormikSubmit from "../components/FormikSubmit";
 import { app } from "../firebase";
 
@@ -33,22 +33,15 @@ export default function Register() {
             validationSchema={validationSchema}
             onSubmit={async (values) => {
               try {
-                await createUserWithEmailAndPassword(
-                  getAuth(app),
-                  values.email,
-                  values.password
-                );
+                await createUserWithEmailAndPassword(getAuth(app), values.email, values.password);
               } catch (e) {
                 // @todo handle error
                 console.log(e);
               }
             }}
           >
-            <VStack
-              spacing={12}
-              style={{ width: "100%", paddingHorizontal: 16 }}
-            >
-              <FormikField
+            <VStack spacing={12} style={{ width: "100%", paddingHorizontal: 16 }}>
+              <FormikTextInput
                 name="email"
                 label="Email"
                 textInputProps={{
@@ -57,7 +50,7 @@ export default function Register() {
                   autoCorrect: false,
                 }}
               />
-              <FormikField
+              <FormikTextInput
                 name="password"
                 label="Password"
                 textInputProps={{
