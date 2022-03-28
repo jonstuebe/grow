@@ -93,7 +93,7 @@ export default function Home() {
   }
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.container}>
+    <>
       <FlatList
         ListHeaderComponent={() => {
           if (data.length === 0) {
@@ -187,7 +187,7 @@ export default function Home() {
         contentContainerStyle={{
           flex: 1,
           marginHorizontal: 16,
-          paddingBottom: bottom,
+          // paddingBottom: bottom,
         }}
       />
       <Pressable
@@ -242,7 +242,7 @@ export default function Home() {
           );
         }}
       />
-    </SafeAreaView>
+    </>
   );
 }
 
