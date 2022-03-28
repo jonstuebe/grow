@@ -186,7 +186,7 @@ export default function Home() {
         stickyHeaderIndices={[0]}
         contentContainerStyle={{
           flex: 1,
-          marginHorizontal: 8,
+          marginHorizontal: 16,
           paddingBottom: bottom,
         }}
       />

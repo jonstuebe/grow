@@ -10,7 +10,6 @@ import ItemForm from "../forms/ItemForm";
 
 import type { RootStackParamList, SavingsItem } from "../types";
 import { useTheme } from "../theme";
-import { Text } from "../components/Text";
 
 export default function EditItem() {
   const { colors } = useTheme();
@@ -79,19 +78,6 @@ export default function EditItem() {
           });
         }}
       />
-      {/* <View>
-        <Text
-          color="textDim"
-          size={14}
-          weight="semibold"
-          style={{
-            textTransform: "uppercase",
-            marginBottom: 8,
-          }}
-        >
-          Transactions
-        </Text>
-      </View> */}
     </View>
   );
 }

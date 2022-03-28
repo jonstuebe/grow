@@ -15,14 +15,16 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "config": {
         "usesNonExemptEncryption": false
       },
       "supportsTablet": true,
       "bundleIdentifier": "com.jonstuebe.grow",
-      "buildNumber": "10"
+      "buildNumber": "11"
     },
     "android": {
       "adaptiveIcon": {
