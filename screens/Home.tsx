@@ -7,39 +7,41 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import Color from "color";
 import * as Haptics from "expo-haptics";
 import Dinero from "dinero.js";
-import { getFirestore, collection, query, where } from "firebase/firestore";
+import { getFirestore, collection, query, where, orderBy } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getAuth, signOut } from "firebase/auth";
+import { lighten } from "polished";
 
 import { app } from "../firebase";
 
-import useColorScheme from "../hooks/useColorScheme";
-import { useModalize } from "../hooks/useModalize";
+import { useTheme } from "../theme";
+import { getItemAmount } from "../utils";
 
 import ActionSheetButton from "../components/ActionSheetButton";
-import { Text, useThemeColor } from "../components/Themed";
-import SavingsCard, { SavingsCardProps } from "../components/SavingsCard";
+import { Text } from "../components/Text";
+import SavingsCard from "../components/SavingsCard";
 import Button from "../components/Button";
 
+import { RootStackParamList, SavingsItem, SavingsItemAmount } from "../types";
+
 export default function Home() {
-  const { navigate } = useNavigation();
-  const scheme = useColorScheme();
+  const { colors } = useTheme();
+  const { navigate } = useNavigation<NavigationProp<RootStackParamList>>();
+
   const [user] = useAuthState(getAuth(app));
   const [value, loading, error] = useCollection(
     query(
-      collection(getFirestore(app), "items"),
-      where("uid", "==", user?.uid)
+      collection(getFirestore(app), "items-v2"),
+      where("uid", "==", user?.uid),
+      orderBy("title", "asc")
+      // orderBy("goal", "desc")
     ),
     {
       snapshotListenOptions: { includeMetadataChanges: true },
@@ -47,36 +49,34 @@ export default function Home() {
   );
 
   const data = useMemo(() => {
-    let items: SavingsCardProps[] = [];
+    const items: SavingsItem[] = [];
 
     if (!loading && !error) {
       value?.docs.map((doc) => {
+        const itemData = doc.data();
+
         items.push({
           id: doc.id,
-          ...doc.data(),
-        } as SavingsCardProps);
+          amounts: [] as SavingsItemAmount[],
+          ...itemData,
+        } as SavingsItem);
       });
     }
 
     return items;
-  }, [loading, value]);
+  }, [error, loading, value?.docs]);
 
   const totalSaved = useMemo(() => {
     const amount = data.reduce((acc, cur) => {
-      return acc + cur.amount;
+      return acc + getItemAmount(cur);
     }, 0);
 
-    const value = Dinero({ amount, currency: "USD" });
+    const value = Dinero({ amount: amount * 100, currency: "USD" });
 
-    return value.hasSubUnits()
-      ? value.toFormat("$0,0.00")
-      : value.toFormat("$0,0");
+    return value.hasSubUnits() ? value.toFormat("$0,0.00") : value.toFormat("$0,0");
   }, [data]);
 
   const { bottom } = useSafeAreaInsets();
-  const { ref: modalRef, open, close } = useModalize();
-
-  const backgroundColor = useThemeColor("background");
 
   if (loading) {
     return (
@@ -102,42 +102,57 @@ export default function Home() {
 
           return (
             <LinearGradient
-              colors={
-                scheme === "light"
-                  ? [
-                      "rgb(242,242,242)",
-                      "rgb(242,242,242)",
-                      "rgba(242,242,242,0.8)",
-                      "rgba(242,242,242,0)",
-                    ]
-                  : [
-                      "rgb(0,0,0)",
-                      "rgb(0,0,0)",
-                      "rgba(0,0,0,0.8)",
-                      "rgba(0,0,0,0)",
-                    ]
-              }
+              colors={["rgb(0,0,0)", "rgb(0,0,0)", "rgba(0,0,0,0.8)", "rgba(0,0,0,0)"]}
               locations={[0, 0.6, 0.8, 1]}
               style={{
                 alignItems: "center",
                 paddingVertical: 120,
               }}
             >
-              <Text size={24} weight="medium" color="dim">
+              <Text size={24} weight="medium" color="textDim">
                 Total Saved
               </Text>
-              <Text size={48} weight="semibold" color="title">
+              <Text size={48} weight="semibold" color="text">
                 {totalSaved}
               </Text>
             </LinearGradient>
           );
         }}
         data={data}
-        renderItem={({ item }) => {
-          return <SavingsCard {...item} />;
+        renderItem={({ item, index }) => {
+          return (
+            <SavingsCard
+              item={item}
+              style={[
+                index === 0
+                  ? {
+                      borderTopLeftRadius: 8,
+                      borderTopRightRadius: 8,
+                      borderBottomLeftRadius: 0,
+                      borderBottomRightRadius: 0,
+                    }
+                  : index + 1 === data.length
+                  ? {
+                      borderTopLeftRadius: 0,
+                      borderTopRightRadius: 0,
+                      borderBottomLeftRadius: 8,
+                      borderBottomRightRadius: 8,
+                    }
+                  : undefined,
+                data.length === 1
+                  ? {
+                      borderBottomLeftRadius: 8,
+                      borderBottomRightRadius: 8,
+                    }
+                  : undefined,
+              ]}
+            />
+          );
         }}
         keyExtractor={({ id }) => id}
-        ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: 1, backgroundColor: colors.border }} />
+        )}
         ListEmptyComponent={() => {
           return (
             <View
@@ -160,7 +175,7 @@ export default function Home() {
               <Button
                 onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  open();
+                  navigate("AddItem");
                 }}
               >
                 Add Item
@@ -171,6 +186,7 @@ export default function Home() {
         stickyHeaderIndices={[0]}
         contentContainerStyle={{
           flex: 1,
+          marginHorizontal: 8,
           paddingBottom: bottom,
         }}
       />
@@ -178,7 +194,6 @@ export default function Home() {
         onPress={async () => {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           navigate("AddItem");
-          // open();
         }}
         style={({ pressed }) => ({
           position: "absolute",
@@ -187,14 +202,7 @@ export default function Home() {
           width: 56,
           height: 56,
           borderRadius: 56 / 2,
-          backgroundColor:
-            scheme === "light"
-              ? pressed
-                ? Color("#007aff").lighten(0.1).hex()
-                : "#007aff"
-              : pressed
-              ? Color("#3178c6").lighten(0.1).hex()
-              : "#3178c6",
+          backgroundColor: pressed ? lighten(0.1, "#3178c6") : "#3178c6",
           alignItems: "center",
           justifyContent: "center",
 
@@ -224,6 +232,7 @@ export default function Home() {
               options: ["Logout", "Cancel"],
               destructiveButtonIndex: 0,
               cancelButtonIndex: 1,
+              userInterfaceStyle: "dark",
             },
             async (buttonIndex) => {
               if (buttonIndex === 0) {

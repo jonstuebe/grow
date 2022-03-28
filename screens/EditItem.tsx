@@ -1,41 +1,35 @@
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { getAuth } from "firebase/auth";
 import { deleteDoc, doc, getFirestore, updateDoc } from "firebase/firestore";
 import { useCallback, useLayoutEffect } from "react";
 import { ActionSheetIOS, Pressable, StyleSheet, View } from "react-native";
 
 import { app } from "../firebase";
 
-import type { SavingsCardProps } from "../components/SavingsCard";
-import { useTextColor } from "../components/Themed";
 import ItemForm from "../forms/ItemForm";
 
-import { RootStackParamList } from "../types";
+import type { RootStackParamList, SavingsItem } from "../types";
+import { useTheme } from "../theme";
+import { Text } from "../components/Text";
 
 export default function EditItem() {
-  const errorColor = useTextColor("error");
+  const { colors } = useTheme();
   const navigation = useNavigation();
-  const { params: item } =
-    useRoute<RouteProp<RootStackParamList, "EditItem">>();
+  const { params: item } = useRoute<RouteProp<RootStackParamList, "EditItem">>();
 
   const onSaveChanges = useCallback(
-    async ({ id, ...item }: SavingsCardProps) => {
-      const user = getAuth(app).currentUser;
-      const amount = parseFloat(item.amount as any) * 100;
-      const totalAmount = parseFloat(item.totalAmount as any) * 100;
+    async ({ id, ...item }: Omit<SavingsItem, "amounts">) => {
+      const goal = parseFloat(item.goal as unknown as string);
 
-      await updateDoc(doc(getFirestore(app), "items", id), {
+      await updateDoc(doc(getFirestore(app), "items-v2", id), {
         title: item.title,
         icon: item.icon,
-        amount,
-        totalAmount,
-        uid: user?.uid,
+        goal,
       });
 
       navigation.goBack();
     },
-    []
+    [navigation]
   );
 
   useLayoutEffect(() => {
@@ -50,12 +44,13 @@ export default function EditItem() {
                 options: ["Cancel", "Delete"],
                 cancelButtonIndex: 0,
                 destructiveButtonIndex: 1,
+                userInterfaceStyle: "dark",
               },
               async (buttonIndex) => {
                 if (buttonIndex === 1) {
                   try {
-                    await deleteDoc(doc(getFirestore(app), "items", item.id));
-                    close();
+                    await deleteDoc(doc(getFirestore(app), "items-v2", item.id));
+                    navigation.goBack();
                   } catch (e) {
                     // @todo handle error
                     console.log(e);
@@ -65,11 +60,11 @@ export default function EditItem() {
             );
           }}
         >
-          <Ionicons name="trash" size={24} color={errorColor} />
+          <Ionicons name="trash" size={24} color={colors.error} />
         </Pressable>
       ),
     });
-  }, []);
+  }, [colors.error, item.id, navigation]);
 
   return (
     <View style={[styles.container]}>
@@ -78,13 +73,25 @@ export default function EditItem() {
         onSave={(values) => {
           onSaveChanges({
             title: values.title,
-            amount: values.amount ?? 0,
-            totalAmount: values.totalAmount ?? 0,
+            goal: values.goal ?? 0,
             icon: values.icon,
             id: item.id,
           });
         }}
       />
+      {/* <View>
+        <Text
+          color="textDim"
+          size={14}
+          weight="semibold"
+          style={{
+            textTransform: "uppercase",
+            marginBottom: 8,
+          }}
+        >
+          Transactions
+        </Text>
+      </View> */}
     </View>
   );
 }

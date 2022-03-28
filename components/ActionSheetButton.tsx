@@ -1,16 +1,12 @@
 import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTextColor } from "./Themed";
-import Color from "color";
+import { lighten } from "polished";
+import { useTheme } from "../theme";
 
-export default function ActionSheetButton({
-  onPress,
-}: {
-  onPress: VoidFunction;
-}) {
+export default function ActionSheetButton({ onPress }: { onPress: VoidFunction }) {
   const insets = useSafeAreaInsets();
-  const textColor = useTextColor("dim");
+  const { colors } = useTheme();
 
   return (
     <Pressable
@@ -24,7 +20,7 @@ export default function ActionSheetButton({
       {({ pressed }) => (
         <Ionicons
           name="ellipsis-horizontal-circle-outline"
-          color={pressed ? Color(textColor).lighten(0.2).hex() : textColor}
+          color={pressed ? lighten(0.1, colors.textDim) : colors.textDim}
           size={32}
         />
       )}

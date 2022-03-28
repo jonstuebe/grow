@@ -1,55 +1,42 @@
 import React, { useEffect, useState } from "react";
-import {
-  NavigationContainer,
-  DefaultTheme,
-  DarkTheme,
-} from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ActivityIndicator, ColorSchemeName, View } from "react-native";
+import { NavigationContainer, useTheme } from "@react-navigation/native";
+import { ActivityIndicator, View } from "react-native";
 import { Host } from "react-native-portalize";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { StatusBar } from "expo-status-bar";
+import { darken } from "polished";
 
 import NotFoundScreen from "../screens/NotFoundScreen";
 import Home from "../screens/Home";
 import Login from "../screens/Login";
 import Register from "../screens/Register";
 
-import type { RootStackParamList } from "../types";
+import { Stack } from "./Stack";
+
 import LinkingConfiguration from "./LinkingConfiguration";
-
-import { useThemeColor } from "../components/Themed";
+import { Theme } from "../theme";
 import { app } from "../firebase";
-import EditItem from "../screens/EditItem";
+
 import AddItem from "../screens/AddItem";
+import EditItem from "../screens/EditItem";
+import Item from "../screens/Item";
 
-export default function Navigation({
-  colorScheme,
-}: {
-  colorScheme: ColorSchemeName;
-}) {
-  const backgroundColor = useThemeColor("background");
-
+export default function Navigation() {
   return (
-    <NavigationContainer
-      linking={LinkingConfiguration}
-      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-    >
-      <Host style={{ backgroundColor }}>
+    <NavigationContainer linking={LinkingConfiguration} theme={Theme}>
+      <StatusBar style="light" />
+      <Host style={{ backgroundColor: Theme.colors.background }}>
         <RootNavigator />
       </Host>
     </NavigationContainer>
   );
 }
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
 const auth = getAuth(app);
 
 function RootNavigator() {
-  const [status, setStatus] = useState<
-    "authenticated" | "unauthenticated" | "loading"
-  >("loading");
-
-  const backgroundColor = useThemeColor("background");
+  const [status, setStatus] = useState<"authenticated" | "unauthenticated" | "loading">("loading");
+  const { colors } = useTheme();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -73,7 +60,7 @@ function RootNavigator() {
           alignItems: "center",
           justifyContent: "center",
           flex: 1,
-          backgroundColor,
+          backgroundColor: colors.background,
         }}
       >
         <ActivityIndicator size="large" />
@@ -82,13 +69,22 @@ function RootNavigator() {
   }
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: darken(0.15, colors.card),
+        },
+      }}
+    >
       {status === "authenticated" ? (
         <>
+          <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
           <Stack.Screen
-            name="Home"
-            component={Home}
-            options={{ headerShown: false }}
+            name="Item"
+            component={Item}
+            options={{
+              title: "",
+            }}
           />
           <Stack.Screen
             name="EditItem"
@@ -97,19 +93,11 @@ function RootNavigator() {
               title: "",
             }}
           />
-          <Stack.Screen
-            name="AddItem"
-            component={AddItem}
-            options={{ title: "" }}
-          />
+          <Stack.Screen name="AddItem" component={AddItem} options={{ title: "" }} />
         </>
       ) : (
         <>
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{ headerShown: false }}
-          />
+          <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
           <Stack.Screen
             name="Register"
             component={Register}
@@ -121,11 +109,7 @@ function RootNavigator() {
         </>
       )}
 
-      <Stack.Screen
-        name="NotFound"
-        component={NotFoundScreen}
-        options={{ title: "Oops!" }}
-      />
+      <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: "Oops!" }} />
     </Stack.Navigator>
   );
 }

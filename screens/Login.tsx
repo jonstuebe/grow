@@ -1,22 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { Formik } from "formik";
 import { useRef } from "react";
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  TextInput,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, ScrollView, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { VStack } from "react-native-stacks";
 import * as Yup from "yup";
 import FormikField from "../components/FormikField";
 import FormikSubmit from "../components/FormikSubmit";
-import { Text, useTextColor } from "../components/Themed";
+import FormikTextInput from "../components/FormikTextInput";
+import { Text } from "../components/Text";
 import { app } from "../firebase";
 import useColorScheme from "../hooks/useColorScheme";
+import { useTheme } from "../theme";
+import { RootStackParamList } from "../types";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email().required("Please enter your email"),
@@ -24,11 +22,10 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function Login() {
-  const { navigate } = useNavigation();
+  const { colors } = useTheme();
+  const { navigate } = useNavigation<NavigationProp<RootStackParamList>>();
   const scheme = useColorScheme();
   const passwordRef = useRef<TextInput>(null);
-
-  const textColor = useTextColor("dim");
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -47,12 +44,7 @@ export default function Login() {
               marginBottom: 16,
             }}
           >
-            <Ionicons
-              name="leaf"
-              size={36}
-              color={textColor}
-              style={{ marginRight: 8 }}
-            />
+            <Ionicons name="leaf" size={36} color={colors.textDim} style={{ marginRight: 8 }} />
             <Text size={42} weight="bold">
               Grow
             </Text>
@@ -65,11 +57,7 @@ export default function Login() {
             validationSchema={validationSchema}
             onSubmit={async (values) => {
               try {
-                await signInWithEmailAndPassword(
-                  getAuth(app),
-                  values.email,
-                  values.password
-                );
+                await signInWithEmailAndPassword(getAuth(app), values.email, values.password);
               } catch (e) {
                 // @todo handle error
                 console.log(e);
@@ -77,11 +65,8 @@ export default function Login() {
             }}
           >
             {({ submitForm }) => (
-              <VStack
-                spacing={8}
-                style={{ width: "100%", paddingHorizontal: 16 }}
-              >
-                <FormikField
+              <VStack spacing={8} style={{ width: "100%", paddingHorizontal: 16 }}>
+                <FormikTextInput
                   name="email"
                   label="Email"
                   textInputProps={{
@@ -94,7 +79,7 @@ export default function Login() {
                     },
                   }}
                 />
-                <FormikField
+                <FormikTextInput
                   ref={passwordRef}
                   name="password"
                   label="Password"

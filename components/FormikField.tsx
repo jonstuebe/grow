@@ -4,11 +4,10 @@ import { ForwardedRef, forwardRef } from "react";
 import { TextInput } from "react-native";
 import FormField, { FormFieldProps } from "./FormField";
 
-export interface FormikFieldProps
-  extends Omit<FormFieldProps, "onChange" | "value" | "error"> {}
+export type FormikFieldProps = Omit<FormFieldProps, "onChange" | "value" | "error">
 
 const FormikField = forwardRef(function FormikField(
-  { name, label, textInputProps }: FormikFieldProps,
+  { name, label, textInputProps, ...props }: FormikFieldProps,
   ref: ForwardedRef<TextInput>
 ) {
   const [{ value }, { touched, error }, { setValue, setTouched }] =
@@ -33,6 +32,7 @@ const FormikField = forwardRef(function FormikField(
           setTouched(true);
         },
       }}
+      {...props}
     />
   );
 });

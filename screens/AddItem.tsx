@@ -12,21 +12,21 @@ export default function AddItem() {
   const navigation = useNavigation();
   const { bottom } = useSafeAreaInsets();
 
-  const onSave = useCallback(async (values: FormikFields) => {
-    const user = getAuth(app).currentUser;
+  const onSave = useCallback(
+    async (values: FormikFields) => {
+      const user = getAuth(app).currentUser;
+      const goal = parseFloat(values.goal as unknown as string);
 
-    const amount = parseFloat(values.amount as any) * 100;
-    const totalAmount = parseFloat(values.totalAmount as any) * 100;
-
-    await addDoc(collection(getFirestore(app), "items"), {
-      title: values.title,
-      icon: values.icon,
-      amount,
-      totalAmount,
-      uid: user?.uid,
-    });
-    navigation.goBack();
-  }, []);
+      await addDoc(collection(getFirestore(app), "items-v2"), {
+        title: values.title,
+        icon: values.icon,
+        goal,
+        uid: user?.uid,
+      });
+      navigation.goBack();
+    },
+    [navigation]
+  );
 
   return (
     <View
@@ -41,8 +41,7 @@ export default function AddItem() {
         onSave={onSave}
         initialValues={{
           title: "",
-          amount: undefined,
-          totalAmount: undefined,
+          goal: undefined,
           icon: "",
         }}
       />

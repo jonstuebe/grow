@@ -1,25 +1,22 @@
-import { Pressable, StyleProp, ViewStyle } from "react-native";
-import useColorScheme from "../hooks/useColorScheme";
-import Color from "color";
-import { Text } from "./Themed";
 import { ReactText } from "react";
+import { Pressable, StyleProp, ViewStyle } from "react-native";
+import { lighten } from "polished";
+
+import { Text } from "./Text";
+import { useTheme } from "../theme";
 
 export default function Button({
   children,
   fullWidth = true,
-  lightColor = "#007aff",
-  darkColor = "#3178c6",
   style,
   onPress,
 }: {
   children: ReactText;
   fullWidth?: boolean;
-  lightColor?: string;
-  darkColor?: string;
   style?: StyleProp<ViewStyle>;
   onPress: VoidFunction;
 }) {
-  const scheme = useColorScheme();
+  const { colors } = useTheme();
 
   return (
     <Pressable
@@ -28,15 +25,11 @@ export default function Button({
         return [
           {
             width: fullWidth ? "100%" : undefined,
-            backgroundColor:
-              scheme === "light"
-                ? pressed
-                  ? Color(lightColor).lighten(0.1).hex()
-                  : lightColor
-                : pressed
-                ? Color(darkColor).lighten(0.1).hex()
-                : darkColor,
+            backgroundColor: pressed
+              ? lighten(0.1, colors.primary)
+              : colors.primary,
             borderRadius: 12,
+            paddingVertical: 16,
             alignItems: "center",
             justifyContent: "center",
           },

@@ -3,27 +3,23 @@ import emojiRegex from "emoji-regex";
 import { Formik } from "formik";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { VStack } from "react-native-stacks";
 import * as Yup from "yup";
 
 import FormikEmojiField from "../components/FormikEmojiField";
 import FormikField from "../components/FormikField";
 import FormikSubmit from "../components/FormikSubmit";
 import { useKeyboard } from "../hooks/useKeyboard";
+import { FormGroup } from "../components/FormGroup";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Please enter a name"),
-  amount: Yup.number()
-    .min(0, "Can't be a negative number")
-    .typeError("Must be a number")
-    .required("Please enter an amount"),
-  totalAmount: Yup.number()
+  goal: Yup.number()
     .typeError("Must be a number")
     .positive("Must be a positive number")
     .required("Please enter a goal amount"),
   icon: Yup.string()
     .required("Please select an icon")
-    .test("emoji", "Please select an ${path}", (value, _context) => {
+    .test("emoji", "Please select an ${path}", (value) => {
       if (!value) return false;
 
       const regex = emojiRegex();
@@ -39,8 +35,7 @@ const validationSchema = Yup.object().shape({
 
 export type FormikFields = {
   title: string;
-  amount: number | undefined;
-  totalAmount: number | undefined;
+  goal: number | undefined;
   icon: string;
 };
 
@@ -66,8 +61,7 @@ export default function ItemForm({ initialValues, onSave }: ItemFormProps) {
         }}
         scrollableContainerStyle={{
           flex: 1,
-          marginTop: 16,
-          marginBottom: 0,
+          paddingTop: 16,
         }}
         renderScrollable={(panHandlers) => (
           <ScrollView
@@ -77,7 +71,7 @@ export default function ItemForm({ initialValues, onSave }: ItemFormProps) {
               paddingHorizontal: 16,
             }}
           >
-            <VStack spacing={8}>
+            <FormGroup title="Details">
               <FormikField
                 name="title"
                 label="Name"
@@ -90,20 +84,14 @@ export default function ItemForm({ initialValues, onSave }: ItemFormProps) {
               />
               <FormikEmojiField name="icon" label="Icon" />
               <FormikField
-                name="amount"
-                label="Amount"
-                textInputProps={{
-                  keyboardType: "numeric",
-                }}
-              />
-              <FormikField
-                name="totalAmount"
+                name="goal"
+                type="currency"
                 label="Goal Amount"
                 textInputProps={{
                   keyboardType: "numeric",
                 }}
               />
-            </VStack>
+            </FormGroup>
           </ScrollView>
         )}
       >

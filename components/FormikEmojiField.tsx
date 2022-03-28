@@ -1,72 +1,66 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useField } from "formik";
 import { useState } from "react";
 import { View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import EmojiKeyboard from "rn-emoji-keyboard";
+import { useTheme } from "../theme";
 
 import { FormikFieldProps } from "./FormikField";
+import { Text } from "./Text";
 
-import { Text, useTextColor, useThemeColor } from "./Themed";
-
-export default function FormikEmojiField({ name, label }: FormikFieldProps) {
+export default function FormikEmojiField({ name, label, style }: FormikFieldProps) {
+  const { colors } = useTheme();
   const [{ value }, { error, touched }, { setValue }] = useField(name);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const insets = useSafeAreaInsets();
-  const backgroundColor = useThemeColor("background");
-  const rowBackgroundColor = useThemeColor("card");
-  const searchBarPlaceholderColor = useTextColor("dim");
-  const textColor = useTextColor("body");
 
   return (
     <>
-      <View
-        style={{
-          width: "100%",
-          justifyContent: "flex-start",
-        }}
+      <Pressable
+        style={[
+          {
+            width: "100%",
+            backgroundColor: colors.card,
+            overflow: "hidden",
+            borderRadius: 8,
+          },
+          style,
+        ]}
+        onPress={() => setShowEmojiPicker(true)}
       >
-        <Text
-          weight={"medium"}
-          color="title"
-          size={20}
+        <View
           style={{
-            marginBottom: 8,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            padding: 16,
           }}
         >
-          {label}
-        </Text>
-        <Pressable
-          style={[
-            value
-              ? {
-                  width: 52,
-                  height: 52,
-                }
-              : {
-                  paddingVertical: 16,
-                },
-            {
-              backgroundColor: rowBackgroundColor,
-              borderRadius: 8,
-              justifyContent: "center",
-              alignItems: "center",
-            },
-          ]}
-          onPress={() => setShowEmojiPicker(true)}
-        >
-          {value ? <Text size={24}>{value}</Text> : <Text>Choose {label}</Text>}
-        </Pressable>
+          <Text weight={"medium"} color="text" size={16}>
+            {label}
+          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View style={{ marginRight: 8 }}>
+              {value ? <Text size={16}>{value}</Text> : <Text>Choose {label}</Text>}
+            </View>
+            <Ionicons name="chevron-forward-outline" size={20} color={colors.textDim} />
+          </View>
+        </View>
         {error && touched && error !== "" ? (
           <View
             style={{
-              marginTop: 8,
+              borderTopColor: colors.border,
+              borderTopWidth: 1,
+              backgroundColor: colors.errorBackground,
+              paddingVertical: 8,
+              paddingHorizontal: 16,
             }}
           >
-            <Text color="error">{error}</Text>
+            <Text color="text">{error}</Text>
           </View>
         ) : null}
-      </View>
+      </Pressable>
       <EmojiKeyboard
         categoryPosition="bottom"
         open={showEmojiPicker}
@@ -74,24 +68,24 @@ export default function FormikEmojiField({ name, label }: FormikFieldProps) {
         enableSearchBar
         disableSafeArea
         searchBarStyles={{
-          backgroundColor: rowBackgroundColor,
+          backgroundColor: colors.card,
           borderRadius: 8,
         }}
         searchBarTextStyles={{
-          color: textColor,
+          color: colors.text,
         }}
         containerStyles={{
-          backgroundColor,
+          backgroundColor: colors.background,
           paddingBottom: insets.bottom,
         }}
         headerStyles={{
-          color: textColor,
+          color: colors.text,
         }}
-        searchBarPlaceholderColor={searchBarPlaceholderColor}
-        categoryContainerColor={rowBackgroundColor}
-        categoryColor={searchBarPlaceholderColor}
-        activeCategoryColor={rowBackgroundColor}
-        activeCategoryContainerColor={searchBarPlaceholderColor}
+        searchBarPlaceholderColor={colors.textDim}
+        categoryContainerColor={colors.card}
+        categoryColor={colors.textDim}
+        activeCategoryColor={colors.card}
+        activeCategoryContainerColor={colors.textDim}
         onEmojiSelected={(emoji) => {
           setValue(emoji.emoji);
         }}
