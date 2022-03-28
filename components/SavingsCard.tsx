@@ -225,7 +225,7 @@ export default function SavingsCard({ item, style }: SavingsCardProps) {
                 </CircularProgressWithChild>
               </View>
               <View style={{ justifyContent: "center", flexDirection: "column" }}>
-                <Text size={20} weight="semibold" color="text">
+                <Text size={16} weight="semibold" color="text">
                   {item.title}
                 </Text>
                 <Text size={14} weight="semibold" color="text">
