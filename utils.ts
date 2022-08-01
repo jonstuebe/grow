@@ -3,9 +3,13 @@ import Dinero from "dinero.js";
 import type { SavingsItem } from "./types";
 
 export function getItemAmount(item: SavingsItem): number {
-  return item.amounts.reduce((acc, cur) => {
-    return acc + (cur.type === "withdrawal" ? -1 : 1) * cur.amount;
-  }, 0);
+  return parseFloat(
+    item.amounts
+      .reduce((acc, cur) => {
+        return acc + (cur.type === "withdrawal" ? -1 : 1) * cur.amount;
+      }, 0)
+      .toFixed(2)
+  );
 }
 
 export const formatCurrency = (value: number) => {
