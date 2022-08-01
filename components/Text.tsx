@@ -5,7 +5,7 @@ import { Theme, useTheme } from "../theme";
 export type TextProps = DefaultText["props"] & {
   size?: number;
   weight?: "medium" | "light" | "regular" | "semibold" | "bold";
-  color?: keyof typeof Theme.colors | "textDim" | "error";
+  color?: keyof typeof Theme.colors | "success" | "textDim" | "error";
 };
 
 export function Text({

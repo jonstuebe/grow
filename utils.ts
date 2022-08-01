@@ -13,7 +13,7 @@ export function getItemAmount(item: SavingsItem): number {
 }
 
 export const formatCurrency = (value: number) => {
-  const amount = Dinero({ amount: value * 100, currency: "USD" });
+  const amount = Dinero({ amount: parseFloat((value * 100).toFixed(2)), currency: "USD" });
 
   if (amount.hasSubUnits()) {
     return amount.toFormat("$0,0.00");

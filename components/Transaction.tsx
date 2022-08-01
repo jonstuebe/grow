@@ -97,7 +97,9 @@ export function Transaction({ data, onDelete, style }: TransactionProps) {
         <Text weight="medium">
           {upperFirst(formatRelative(parseISO(data.dateAdded), new Date()))}
         </Text>
-        <Text>{formatCurrency(data.amount)}</Text>
+        <Text color={data.type === "deposit" ? "success" : "error"}>
+          {`${data.type === "withdrawal" ? "-" : ""}${formatCurrency(data.amount)}`}
+        </Text>
       </View>
     </Swipeable>
   );
