@@ -3,11 +3,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { VStack } from "react-native-stacks";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 import FormikTextInput from "../components/FormikTextInput";
 import FormikSubmit from "../components/FormikSubmit";
-import { app } from "../firebase";
+import { auth } from "../firebase";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email().required("Please enter your email"),
@@ -33,7 +33,7 @@ export default function Register() {
             validationSchema={validationSchema}
             onSubmit={async (values) => {
               try {
-                await createUserWithEmailAndPassword(getAuth(app), values.email, values.password);
+                await createUserWithEmailAndPassword(auth, values.email, values.password);
               } catch (e) {
                 // @todo handle error
                 console.log(e);
@@ -45,7 +45,7 @@ export default function Register() {
                 name="email"
                 label="Email"
                 textInputProps={{
-                  autoCompleteType: "email",
+                  autoComplete: "email",
                   autoCapitalize: "none",
                   autoCorrect: false,
                 }}

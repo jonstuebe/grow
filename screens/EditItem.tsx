@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { deleteDoc, doc, getFirestore, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { useCallback, useLayoutEffect } from "react";
 import { ActionSheetIOS, Pressable, StyleSheet, View } from "react-native";
 
-import { app } from "../firebase";
+import { db } from "../firebase";
 
 import ItemForm from "../forms/ItemForm";
 
@@ -20,7 +20,7 @@ export default function EditItem() {
     async ({ id, ...item }: Omit<SavingsItem, "amounts">) => {
       const goal = parseFloat(item.goal as unknown as string);
 
-      await updateDoc(doc(getFirestore(app), "items-v2", id), {
+      await updateDoc(doc(db, "items-v2", id), {
         title: item.title,
         icon: item.icon,
         goal,
@@ -48,7 +48,7 @@ export default function EditItem() {
               async (buttonIndex) => {
                 if (buttonIndex === 1) {
                   try {
-                    await deleteDoc(doc(getFirestore(app), "items-v2", item.id));
+                    await deleteDoc(doc(db, "items-v2", item.id));
                     navigation.goBack();
                   } catch (e) {
                     // @todo handle error

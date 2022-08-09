@@ -10,11 +10,11 @@ import Swipeable from "react-native-gesture-handler/Swipeable";
 import { Modalize } from "react-native-modalize";
 import { RectButton } from "react-native-gesture-handler";
 import { HStack } from "react-native-stacks";
-import { deleteDoc, doc, getFirestore, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { CircularProgressWithChild } from "react-native-circular-progress-indicator";
 
 import { useTheme } from "../theme";
-import { app } from "../firebase";
+import { db } from "../firebase";
 import { useModalize } from "../hooks/useModalize";
 import { useConfetti } from "../hooks/useConfetti";
 
@@ -72,7 +72,7 @@ export default function SavingsCard({ item, style }: SavingsCardProps) {
       async (buttonIndex) => {
         if (buttonIndex === 1) {
           try {
-            await deleteDoc(doc(getFirestore(app), "items-v2", item.id));
+            await deleteDoc(doc(db, "items-v2", item.id));
           } catch (e) {
             // @todo handle error
             console.log(e);
@@ -133,7 +133,7 @@ export default function SavingsCard({ item, style }: SavingsCardProps) {
         },
       ];
 
-      await updateDoc(doc(getFirestore(app), "items-v2", item.id), {
+      await updateDoc(doc(db, "items-v2", item.id), {
         amounts: newAmounts,
       });
 
@@ -148,7 +148,7 @@ export default function SavingsCard({ item, style }: SavingsCardProps) {
 
   const onSubtractAmount = useCallback(
     async (values: { amount: string }) => {
-      await updateDoc(doc(getFirestore(app), "items-v2", item.id), {
+      await updateDoc(doc(db, "items-v2", item.id), {
         amounts: [
           ...item.amounts,
           {

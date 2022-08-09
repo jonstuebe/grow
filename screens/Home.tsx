@@ -7,19 +7,19 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import Dinero from "dinero.js";
-import { getFirestore, collection, query, where, orderBy } from "firebase/firestore";
+import { collection, query, where, orderBy } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { getAuth, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { lighten } from "polished";
 
-import { app } from "../firebase";
+import { db, auth } from "../firebase";
 
 import { useTheme } from "../theme";
 import { getItemAmount } from "../utils";
@@ -35,10 +35,10 @@ export default function Home() {
   const { colors } = useTheme();
   const { navigate } = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const [user] = useAuthState(getAuth(app));
+  const [user] = useAuthState(auth);
   const [value, loading, error] = useCollection(
     query(
-      collection(getFirestore(app), "items-v2"),
+      collection(db, "items-v2"),
       where("uid", "==", user?.uid),
       orderBy("title", "asc")
       // orderBy("goal", "desc")
@@ -187,7 +187,6 @@ export default function Home() {
         contentContainerStyle={{
           flex: 1,
           marginHorizontal: 16,
-          // paddingBottom: bottom,
         }}
       />
       <Pressable
@@ -236,7 +235,7 @@ export default function Home() {
             },
             async (buttonIndex) => {
               if (buttonIndex === 0) {
-                await signOut(getAuth(app));
+                await signOut(auth);
               }
             }
           );
@@ -245,9 +244,3 @@ export default function Home() {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

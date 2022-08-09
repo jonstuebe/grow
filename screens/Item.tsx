@@ -6,11 +6,11 @@ import CircularProgress from "react-native-circular-progress-indicator";
 import { ScrollView } from "react-native-gesture-handler";
 import { orderBy } from "lodash-es";
 import { dequal } from "dequal/lite";
-import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import { useTheme } from "../theme";
 import { formatCurrency, getItemAmount } from "../utils";
-import { app } from "../firebase";
+import { db } from "../firebase";
 
 import { Text } from "../components/Text";
 import { Transaction } from "../components/Transaction";
@@ -37,13 +37,13 @@ export default function Item() {
 
   const onDeleteTransaction = useCallback(
     async (transaction: SavingsItemAmount) => {
-      await updateDoc(doc(getFirestore(app), "items-v2", item.id), {
+      await updateDoc(doc(db, "items-v2", item.id), {
         amounts: item.amounts.filter((i) => {
           return !dequal(i, transaction);
         }),
       });
 
-      const docSnap = await getDoc(doc(getFirestore(app), "items-v2", item.id));
+      const docSnap = await getDoc(doc(db, "items-v2", item.id));
 
       if (docSnap.exists()) {
         setItem({

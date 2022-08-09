@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { NavigationContainer, useTheme } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
 import { Host } from "react-native-portalize";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { StatusBar } from "expo-status-bar";
 import { darken } from "polished";
 
@@ -15,7 +15,7 @@ import { Stack } from "./Stack";
 
 import LinkingConfiguration from "./LinkingConfiguration";
 import { Theme } from "../theme";
-import { app } from "../firebase";
+import { auth } from "../firebase";
 
 import AddItem from "../screens/AddItem";
 import EditItem from "../screens/EditItem";
@@ -31,8 +31,6 @@ export default function Navigation() {
     </NavigationContainer>
   );
 }
-
-const auth = getAuth(app);
 
 function RootNavigator() {
   const [status, setStatus] = useState<"authenticated" | "unauthenticated" | "loading">("loading");

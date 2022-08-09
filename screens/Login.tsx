@@ -1,17 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { Formik } from "formik";
 import { useRef } from "react";
 import { KeyboardAvoidingView, ScrollView, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { VStack } from "react-native-stacks";
 import * as Yup from "yup";
-import FormikField from "../components/FormikField";
 import FormikSubmit from "../components/FormikSubmit";
 import FormikTextInput from "../components/FormikTextInput";
 import { Text } from "../components/Text";
-import { app } from "../firebase";
+import { auth } from "../firebase";
 import useColorScheme from "../hooks/useColorScheme";
 import { useTheme } from "../theme";
 import { RootStackParamList } from "../types";
@@ -57,7 +56,7 @@ export default function Login() {
             validationSchema={validationSchema}
             onSubmit={async (values) => {
               try {
-                await signInWithEmailAndPassword(getAuth(app), values.email, values.password);
+                await signInWithEmailAndPassword(auth, values.email, values.password);
               } catch (e) {
                 // @todo handle error
                 console.log(e);
@@ -70,7 +69,7 @@ export default function Login() {
                   name="email"
                   label="Email"
                   textInputProps={{
-                    autoCompleteType: "email",
+                    autoComplete: "email",
                     autoCapitalize: "none",
                     autoCorrect: false,
                     returnKeyType: "next",

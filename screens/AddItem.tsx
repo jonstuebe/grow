@@ -1,10 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
-import { getAuth } from "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { app } from "../firebase";
+import { auth, db } from "../firebase";
 
 import ItemForm, { FormikFields } from "../forms/ItemForm";
 
@@ -14,10 +13,10 @@ export default function AddItem() {
 
   const onSave = useCallback(
     async (values: FormikFields) => {
-      const user = getAuth(app).currentUser;
+      const user = auth.currentUser;
       const goal = parseFloat(values.goal as unknown as string);
 
-      await addDoc(collection(getFirestore(app), "items-v2"), {
+      await addDoc(collection(db, "items-v2"), {
         title: values.title,
         icon: values.icon,
         goal,
