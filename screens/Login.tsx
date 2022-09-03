@@ -83,7 +83,7 @@ export default function Login() {
                   name="password"
                   label="Password"
                   textInputProps={{
-                    autoCompleteType: "password",
+                    autoComplete: "password",
                     secureTextEntry: true,
                     autoCapitalize: "none",
                     autoCorrect: false,

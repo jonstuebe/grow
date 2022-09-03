@@ -50,7 +50,7 @@ export default function SavingsCard({ item, style }: SavingsCardProps) {
   }, [amount, item.goal]);
 
   const formattedAmount = useMemo(() => {
-    const value = Dinero({ amount: parseFloat((amount * 100).toFixed(2)), currency: "USD" });
+    const value = Dinero({ amount: parseFloat(amount.toFixed(2)) * 100, currency: "USD" });
 
     return value.hasSubUnits() ? value.toFormat("$0,0.00") : value.toFormat("$0,0");
   }, [amount]);

@@ -34,7 +34,10 @@ const FormField = forwardRef(function FormField(
 
   const formattedValue: string = useMemo(() => {
     if (value && type === "currency") {
-      return Dinero({ amount: Number(value) * 100, currency: "USD" }).toFormat("$0,0.00");
+      return Dinero({
+        amount: parseFloat(Number(value).toFixed(2)) * 100,
+        currency: "USD",
+      }).toFormat("$0,0.00");
     }
 
     return value ?? "";

@@ -37,12 +37,7 @@ export default function Home() {
 
   const [user] = useAuthState(auth);
   const [value, loading, error] = useCollection(
-    query(
-      collection(db, "items-v2"),
-      where("uid", "==", user?.uid),
-      orderBy("title", "asc")
-      // orderBy("goal", "desc")
-    ),
+    query(collection(db, "items-v2"), where("uid", "==", user?.uid), orderBy("title", "asc")),
     {
       snapshotListenOptions: { includeMetadataChanges: true },
     }
@@ -71,7 +66,7 @@ export default function Home() {
       return acc + getItemAmount(cur);
     }, 0);
 
-    const value = Dinero({ amount: amount * 100, currency: "USD" });
+    const value = Dinero({ amount: parseFloat(amount.toFixed(2)) * 100, currency: "USD" });
 
     return value.hasSubUnits() ? value.toFormat("$0,0.00") : value.toFormat("$0,0");
   }, [data]);

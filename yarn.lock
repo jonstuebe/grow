@@ -5094,6 +5094,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-plugin-inline-dotenv@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "babel-plugin-inline-dotenv@npm:1.7.0"
+  dependencies:
+    dotenv: ^16.0.0
+  peerDependencies:
+    dotenv-expand: ">= 5.0.0"
+  peerDependenciesMeta:
+    dotenv-expand:
+      optional: true
+  checksum: 1203b100b84d247a0db5d1f2565f452e1afa3f747e5ad872ddbf3533b49ec2173ba2c99d22c05fa902914da8de331fbc714132c2eda7b0a2a26fa909dbb10a67
+  languageName: node
+  linkType: hard
+
 "babel-plugin-istanbul@npm:^6.0.0":
   version: 6.1.1
   resolution: "babel-plugin-istanbul@npm:6.1.1"
@@ -6739,9 +6753,9 @@ __metadata:
   linkType: hard
 
 "dotenv@npm:^16.0.0":
-  version: 16.0.1
-  resolution: "dotenv@npm:16.0.1"
-  checksum: f459ffce07b977b7f15d8cc4ee69cdff77d4dd8c5dc8c85d2d485ee84655352c2415f9dd09d42b5b5985ced3be186130871b34e2f3e2569ebc72fbc2e8096792
+  version: 16.0.2
+  resolution: "dotenv@npm:16.0.2"
+  checksum: ca8f9ca2d67929c7771069f4c31b4e46b9932621009e658e5afd655dde2d69b77642bf36dbc9e72bc170523dfd908a9ee41c26f034c1fdc605ace3b1b4b10faf
   languageName: node
   linkType: hard
 
@@ -7653,6 +7667,58 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: ba970d496017e6e7b210569a087dd3b1653490246ad1838399804631b8b8804467e6f223838600cf72d9b482b180be3bde8773b69b9ed4f9c75c3d51c259e5cf
+  languageName: node
+  linkType: hard
+
+"expo-dev-client@npm:~1.1.1":
+  version: 1.1.1
+  resolution: "expo-dev-client@npm:1.1.1"
+  dependencies:
+    "@expo/config-plugins": ~5.0.0
+    expo-dev-launcher: 1.1.1
+    expo-dev-menu: 1.1.1
+    expo-dev-menu-interface: 0.7.1
+    expo-manifests: ~0.3.0
+    expo-updates-interface: ~0.7.0
+  peerDependencies:
+    expo: "*"
+  checksum: c660655331acd8fb02f62903ade1fa5aaf7bb6cce41715e8cc5b328639fdcd64d47c8df1979de410a4bb754b837105bc82a66aa314811380caee736eb8b03c43
+  languageName: node
+  linkType: hard
+
+"expo-dev-launcher@npm:1.1.1":
+  version: 1.1.1
+  resolution: "expo-dev-launcher@npm:1.1.1"
+  dependencies:
+    "@expo/config-plugins": ~5.0.0
+    expo-dev-menu: 1.1.1
+    resolve-from: ^5.0.0
+    semver: ^7.3.5
+  peerDependencies:
+    expo: "*"
+  checksum: 924b82b45dc30838fcca08cffec90d9e8060ba0adca28d334aa438d63756ea99a71e594268bc249f24fd6a20c52bc1b06b36d702caa3e3e0f3073363d3e6483f
+  languageName: node
+  linkType: hard
+
+"expo-dev-menu-interface@npm:0.7.1":
+  version: 0.7.1
+  resolution: "expo-dev-menu-interface@npm:0.7.1"
+  peerDependencies:
+    expo: "*"
+  checksum: e08271d94a0b3f3328c63dd3a4bc608b58de648d6a953c16a1c6533f55d5fd285f4451dbfc6f37fe7f3b8f2d18fb235a82e7168998f892034f67cade6c94ad8c
+  languageName: node
+  linkType: hard
+
+"expo-dev-menu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "expo-dev-menu@npm:1.1.1"
+  dependencies:
+    "@expo/config-plugins": ~5.0.0
+    expo-dev-menu-interface: 0.7.1
+    semver: ^7.3.5
+  peerDependencies:
+    expo: "*"
+  checksum: d3d0d385dfd13c020316c96342100279b02f924855dbfd3b188776eb5cc7b155fce8de80b5af1fd1c170e58ef3f2f3a7736452d60fa55f3d7d94027b80a46a05
   languageName: node
   linkType: hard
 
@@ -8818,6 +8884,7 @@ __metadata:
     "@types/react-native-confetti": ^0.1.0
     "@typescript-eslint/eslint-plugin": ^5.33.0
     "@typescript-eslint/parser": ^5.33.0
+    babel-plugin-inline-dotenv: ^1.7.0
     chalk: ^5.0.1
     commander: ^9.4.0
     date-fns: ^2.29.1
@@ -8836,6 +8903,7 @@ __metadata:
     expo-blur: ~11.2.0
     expo-clipboard: ~3.1.0
     expo-constants: ~13.2.3
+    expo-dev-client: ~1.1.1
     expo-font: ~10.2.0
     expo-haptics: ~11.3.0
     expo-linear-gradient: ~11.4.0
@@ -8860,7 +8928,6 @@ __metadata:
     react-native: 0.69.4
     react-native-circular-progress-indicator: ^4.4.0
     react-native-confetti: ^0.1.0
-    react-native-dotenv: ^3.3.1
     react-native-gesture-handler: ~2.5.0
     react-native-modalize: ^2.0.13
     react-native-portalize: ^1.0.7
@@ -13453,15 +13520,6 @@ __metadata:
   version: 0.1.0
   resolution: "react-native-confetti@npm:0.1.0"
   checksum: bff5db7cc4028d7f0102d3a583f74fa1b400cfa81c149e982fc04ae79fd3d4f9f79ebc6a45f21d6b8faac37f37c3e128e495a6f7efd164fb607cf4a0db25efc0
-  languageName: node
-  linkType: hard
-
-"react-native-dotenv@npm:^3.3.1":
-  version: 3.4.0
-  resolution: "react-native-dotenv@npm:3.4.0"
-  dependencies:
-    dotenv: ^16.0.0
-  checksum: 3bc8ef4fc2acc930b754ff6b7ae5f5abdf38864e717bced7459902c6b3f8262db234001530ee296f40112a5db467635ba249ae64b954ec29ab84dc80c2c47312
   languageName: node
   linkType: hard
 
