@@ -23,7 +23,7 @@ export default {
       },
       supportsTablet: false,
       bundleIdentifier: "com.jonstuebe.grow",
-      buildNumber: "16",
+      buildNumber: "17",
     },
     android: {
       adaptiveIcon: {
