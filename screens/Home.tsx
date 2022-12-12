@@ -9,6 +9,7 @@ import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { iOSUIKit } from "react-native-typography";
 import { Portal } from "react-native-portalize";
+import { FIREBASE_AUTH_DOMAIN } from "@env";
 
 import Colors from "../Colors";
 

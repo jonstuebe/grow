@@ -5,12 +5,12 @@ import { Cell, Section, TableView } from "react-native-tableview-simple";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useCallback, useMemo, useState } from "react";
 import { useTheme } from "@react-navigation/native";
+import { signInWithEmailAndPassword } from "@firebase/auth";
 import { z } from "zod";
 
 import Colors from "../Colors";
 import Color from "color";
 import { useNavigation } from "../hooks/useHomeNavigation";
-import { signInWithEmailAndPassword } from "@firebase/auth";
 import { auth } from "../firebase";
 
 const schema = z.object({
@@ -36,11 +36,7 @@ export default function Login() {
       setIsSubmitting(true);
 
       try {
-        const response = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        await signInWithEmailAndPassword(auth, email, password);
       } catch {
         //
       } finally {

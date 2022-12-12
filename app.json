@@ -2,6 +2,7 @@
   "expo": {
     "name": "grow",
     "slug": "grow",
+    "scheme": "grow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +23,7 @@
         "usesNonExemptEncryption": false
       },
       "supportsTablet": false,
-      "buildNumber": "19",
+      "buildNumber": "20",
       "bundleIdentifier": "com.jonstuebe.grow"
     },
     "android": {
