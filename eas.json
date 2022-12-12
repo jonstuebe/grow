@@ -1,45 +1,26 @@
 {
   "cli": {
-    "version": ">= 0.46.0"
+    "version": ">= 3.0.0"
   },
   "build": {
     "development": {
       "developmentClient": true,
+      "releaseChannel": "development",
       "distribution": "internal",
       "ios": {
         "simulator": true
-      },
-      "env": {
-        "APP_ENV": "development",
-        "FIREBASE_API_KEY": "public",
-        "FIREBASE_PROJECT_ID": "public",
-        "FIREBASE_MESSAGING_SENDER_ID": "public",
-        "FIREBASE_APP_ID": "public"
       }
     },
     "preview": {
+      "releaseChannel": "preview",
       "distribution": "internal",
       "ios": {
         "simulator": true
-      },
-      "env": {
-        "APP_ENV": "development",
-        "FIREBASE_API_KEY": "public",
-        "FIREBASE_PROJECT_ID": "public",
-        "FIREBASE_MESSAGING_SENDER_ID": "public",
-        "FIREBASE_APP_ID": "public"
       }
     },
     "production": {
-      "releaseChannel": "production",
       "distribution": "store",
-      "env": {
-        "APP_ENV": "production",
-        "FIREBASE_API_KEY": "public",
-        "FIREBASE_PROJECT_ID": "public",
-        "FIREBASE_MESSAGING_SENDER_ID": "public",
-        "FIREBASE_APP_ID": "public"
-      }
+      "releaseChannel": "production"
     }
   },
   "submit": {

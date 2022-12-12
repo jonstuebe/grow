@@ -1,4 +1,7 @@
-import { createUserWithEmailAndPassword } from "@firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "@firebase/auth";
 import { useTheme } from "@react-navigation/native";
 import Color from "color";
 import React, { useCallback, useMemo, useState } from "react";
@@ -13,20 +16,13 @@ import Colors from "../Colors";
 import { auth } from "../firebase";
 import { useNavigation } from "../hooks/useHomeNavigation";
 
-const schema = z
-  .object({
-    email: z.string().email(),
-    password: z.string().min(1).max(20),
-    passwordConfirm: z.string().min(1).max(20),
-  })
-  .refine((data) => data.password === data.passwordConfirm, {
-    message: "Password's don't match",
-    path: ["passwordConfirm"],
-  });
+const schema = z.object({
+  email: z.string().email(),
+});
 
-export default function Register() {
+export default function ForgotPassword() {
   const { colors } = useTheme();
-  const { navigate } = useNavigation();
+  const { navigate, goBack } = useNavigation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,19 +33,15 @@ export default function Register() {
     () => schema.safeParse({ email, password, passwordConfirm }).success,
     [email, password, passwordConfirm]
   );
-
   const onSubmit = useCallback(
-    async ({ email, password }: { email: string; password: string }) => {
+    async ({ email }: { email: string }) => {
       setIsSubmitting(true);
 
       try {
-        const response = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-      } catch {
-        //
+        const response = await sendPasswordResetEmail(auth, email);
+        goBack();
+      } catch (e) {
+        console.log(e);
       } finally {
         setIsSubmitting(false);
       }
@@ -82,7 +74,7 @@ export default function Register() {
         <Text
           style={[iOSUIKit.largeTitleEmphasizedWhite, { letterSpacing: -0.45 }]}
         >
-          Register
+          Reset Password
         </Text>
         <TableView
           appearance="dark"
@@ -115,53 +107,6 @@ export default function Register() {
                 </View>
               }
             />
-            <Cell
-              title="Password"
-              cellAccessoryView={
-                <View style={{ flex: 1 }}>
-                  <TextInput
-                    placeholder="Your password"
-                    autoComplete="password"
-                    keyboardAppearance="dark"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                    editable={!isSubmitting}
-                    maxLength={20}
-                    style={{
-                      flex: 1,
-                      color: "#fff",
-                      textAlign: "right",
-                      opacity: isSubmitting ? 0.1 : undefined,
-                    }}
-                  />
-                </View>
-              }
-            />
-            <Cell
-              title="Confirm Password"
-              cellAccessoryView={
-                <View style={{ flex: 1 }}>
-                  <TextInput
-                    placeholder="Your password"
-                    autoComplete="password"
-                    keyboardAppearance="dark"
-                    secureTextEntry
-                    value={passwordConfirm}
-                    onChangeText={setPasswordConfirm}
-                    editable={!isSubmitting}
-                    onSubmitEditing={() => onSubmit({ email, password })}
-                    maxLength={20}
-                    style={{
-                      flex: 1,
-                      color: "#fff",
-                      textAlign: "right",
-                      opacity: isSubmitting ? 0.1 : undefined,
-                    }}
-                  />
-                </View>
-              }
-            />
           </Section>
         </TableView>
         <Pressable
@@ -176,7 +121,7 @@ export default function Register() {
             backgroundColor: colors.card,
             opacity: isValid ? 1 : 0.8,
           }}
-          onPress={() => onSubmit({ email, password })}
+          onPress={() => onSubmit({ email })}
         >
           <Text
             style={[
@@ -188,7 +133,7 @@ export default function Register() {
               },
             ]}
           >
-            {isSubmitting ? "Creating Account..." : "Create Account"}
+            {isSubmitting ? "Sending Reset Email..." : "Send Reset Email"}
           </Text>
         </Pressable>
       </ScrollView>

@@ -1,23 +1,29 @@
-import Dinero from "dinero.js";
+import { Dispatch, SetStateAction } from "react";
 
-import type { SavingsItem } from "./types";
+export function convertToCents(num: string | undefined) {
+  if (num === undefined) return 0;
 
-export function getItemAmount(item: SavingsItem): number {
-  return parseFloat(
-    item.amounts
-      .reduce((acc, cur) => {
-        return acc + (cur.type === "withdrawal" ? -1 : 1) * cur.amount;
-      }, 0)
-      .toFixed(2)
-  );
+  return parseFloat(num) * 100;
 }
 
-export const formatCurrency = (value: number) => {
-  const amount = Dinero({ amount: parseFloat(value.toFixed(2)) * 100, currency: "USD" });
+export function updateCurrencyOnBlur(
+  text: string,
+  updater: Dispatch<SetStateAction<string | undefined>>
+) {
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+  const num = parseFloat(text);
 
-  if (amount.hasSubUnits()) {
-    return amount.toFormat("$0,0.00");
+  if (!isNaN(num)) {
+    updater(formatter.format(num).replace("$", ""));
   }
+}
 
-  return amount.toFormat("$0,0");
-};
+export function stripCharacters(
+  text: string,
+  updater: Dispatch<SetStateAction<string | undefined>>
+) {
+  updater(text.replace(/[^0-9.]/g, ""));
+}

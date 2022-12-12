@@ -1,118 +1,204 @@
-import { Ionicons } from "@expo/vector-icons";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { Formik } from "formik";
-import { useRef } from "react";
-import { KeyboardAvoidingView, ScrollView, TextInput, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { VStack } from "react-native-stacks";
-import * as Yup from "yup";
-import FormikSubmit from "../components/FormikSubmit";
-import FormikTextInput from "../components/FormikTextInput";
-import { Text } from "../components/Text";
-import { auth } from "../firebase";
-import useColorScheme from "../hooks/useColorScheme";
-import { useTheme } from "../theme";
-import { RootStackParamList } from "../types";
+import { iOSUIKit } from "react-native-typography";
+import { Cell, Section, TableView } from "react-native-tableview-simple";
+import { ScrollView, TextInput } from "react-native-gesture-handler";
+import { useCallback, useMemo, useState } from "react";
+import { useTheme } from "@react-navigation/native";
+import { z } from "zod";
 
-const validationSchema = Yup.object().shape({
-  email: Yup.string().email().required("Please enter your email"),
-  password: Yup.string().required("Please enter your password"),
+import Colors from "../Colors";
+import Color from "color";
+import { useNavigation } from "../hooks/useHomeNavigation";
+import { signInWithEmailAndPassword } from "@firebase/auth";
+import { auth } from "../firebase";
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1).max(20),
 });
 
 export default function Login() {
   const { colors } = useTheme();
-  const { navigate } = useNavigation<NavigationProp<RootStackParamList>>();
-  const scheme = useColorScheme();
-  const passwordRef = useRef<TextInput>(null);
+  const { navigate } = useNavigation();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isValid = useMemo(
+    () => schema.safeParse({ email, password }).success,
+    [email, password]
+  );
+
+  const onSubmit = useCallback(
+    async ({ email, password }: { email: string; password: string }) => {
+      setIsSubmitting(true);
+
+      try {
+        const response = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+      } catch {
+        //
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [navigate]
+  );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <ScrollView
-          contentContainerStyle={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
+    <SafeAreaView
+      edges={["top", "bottom"]}
+      style={{
+        flexDirection: "column",
+        justifyContent: "center",
+        alignContent: "center",
+        flex: 1,
+        marginHorizontal: 32,
+      }}
+    >
+      <ScrollView
+        keyboardDismissMode="interactive"
+        contentContainerStyle={{
+          flex: 1,
+          width: "100%",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 64,
+        }}
+      >
+        <Text
+          style={[iOSUIKit.largeTitleEmphasizedWhite, { letterSpacing: -0.45 }]}
+        >
+          Grow
+        </Text>
+        <TableView
+          appearance="dark"
+          style={{
+            width: "100%",
           }}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginBottom: 16,
-            }}
-          >
-            <Ionicons name="leaf" size={36} color={colors.textDim} style={{ marginRight: 8 }} />
-            <Text size={42} weight="bold">
-              Grow
-            </Text>
-          </View>
-          <Formik
-            initialValues={{
-              email: "",
-              password: "",
-            }}
-            validationSchema={validationSchema}
-            onSubmit={async (values) => {
-              try {
-                await signInWithEmailAndPassword(auth, values.email, values.password);
-              } catch (e) {
-                // @todo handle error
-                console.log(e);
-              }
-            }}
-          >
-            {({ submitForm }) => (
-              <VStack spacing={8} style={{ width: "100%", paddingHorizontal: 16 }}>
-                <FormikTextInput
-                  name="email"
-                  label="Email"
-                  textInputProps={{
-                    autoComplete: "email",
-                    autoCapitalize: "none",
-                    autoCorrect: false,
-                    returnKeyType: "next",
-                    onSubmitEditing: () => {
-                      passwordRef?.current?.focus();
-                    },
-                  }}
-                />
-                <FormikTextInput
-                  ref={passwordRef}
-                  name="password"
-                  label="Password"
-                  textInputProps={{
-                    autoComplete: "password",
-                    secureTextEntry: true,
-                    autoCapitalize: "none",
-                    autoCorrect: false,
-                    returnKeyType: "done",
-                    onSubmitEditing: () => {
-                      submitForm();
-                    },
-                  }}
-                />
-                <FormikSubmit label="Login" submittingLabel="Logging in..." />
-                <Text
-                  onPress={() => {
-                    navigate("Register");
-                  }}
-                >
-                  or{" "}
-                  <Text
+          <Section hideSurroundingSeparators roundedCorners>
+            <Cell
+              title="Email"
+              cellAccessoryView={
+                <View style={{ flex: 1 }}>
+                  <TextInput
+                    placeholder="hello@company.com"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    autoFocus
+                    keyboardAppearance="dark"
+                    value={email}
+                    onChangeText={setEmail}
+                    editable={!isSubmitting}
                     style={{
-                      color: scheme === "light" ? "#007aff" : "#3178c6",
+                      flex: 1,
+                      color: "#fff",
+                      textAlign: "right",
+                      opacity: isSubmitting ? 0.1 : undefined,
                     }}
-                  >
-                    Sign up
-                  </Text>
-                </Text>
-              </VStack>
-            )}
-          </Formik>
-        </ScrollView>
-      </KeyboardAvoidingView>
+                  />
+                </View>
+              }
+            />
+            <Cell
+              title="Password"
+              cellAccessoryView={
+                <View style={{ flex: 1 }}>
+                  <TextInput
+                    placeholder="Your password"
+                    autoComplete="password"
+                    keyboardAppearance="dark"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    editable={!isSubmitting}
+                    onSubmitEditing={() => onSubmit({ email, password })}
+                    maxLength={20}
+                    style={{
+                      flex: 1,
+                      color: "#fff",
+                      textAlign: "right",
+                      opacity: isSubmitting ? 0.1 : undefined,
+                    }}
+                  />
+                </View>
+              }
+            />
+          </Section>
+        </TableView>
+        <Pressable
+          disabled={!isValid || isSubmitting}
+          style={{
+            width: "100%",
+            alignItems: "center",
+            paddingVertical: 10,
+            borderRadius: 10,
+            marginBottom: 8,
+
+            backgroundColor: colors.card,
+            opacity: isValid ? 1 : 0.8,
+          }}
+          onPress={() => onSubmit({ email, password })}
+        >
+          <Text
+            style={[
+              iOSUIKit.body,
+              {
+                color: isValid
+                  ? Colors.blue
+                  : Color(colors.text).hsl().alpha(0.2).string(),
+              },
+            ]}
+          >
+            {isSubmitting ? "Logging in..." : "Login"}
+          </Text>
+        </Pressable>
+      </ScrollView>
+      <View>
+        <Pressable
+          style={{
+            width: "100%",
+            paddingVertical: 8,
+            marginBottom: 8,
+          }}
+          onPress={() => {
+            navigate("ForgotPassword");
+          }}
+        >
+          <Text
+            style={[
+              iOSUIKit.calloutWhite,
+              {
+                color: Color("white").darken(0.4).hsl().string(),
+                textAlign: "center",
+              },
+            ]}
+          >
+            Forgot Password
+          </Text>
+        </Pressable>
+        <Pressable
+          style={{
+            width: "100%",
+            alignItems: "center",
+            paddingVertical: 10,
+            borderRadius: 10,
+            borderColor: colors.border,
+            borderWidth: 1,
+          }}
+          onPress={() => navigate("Register")}
+        >
+          <Text style={iOSUIKit.bodyWhite}>Register</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }

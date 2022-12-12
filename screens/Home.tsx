@@ -1,241 +1,221 @@
-import { useMemo } from "react";
-import {
-  ActionSheetIOS,
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import Dinero from "dinero.js";
-import { collection, query, where, orderBy } from "firebase/firestore";
-import { useCollection } from "react-firebase-hooks/firestore";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { signOut } from "firebase/auth";
-import { lighten } from "polished";
+import { useEffect, useMemo } from "react";
+import Confetti from "react-native-confetti";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useTheme } from "@react-navigation/native";
+import Color from "color";
+import { MotiView } from "moti";
+import { Pressable, Text, View } from "react-native";
+import { RefreshControl, ScrollView } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { iOSUIKit } from "react-native-typography";
+import { Portal } from "react-native-portalize";
 
-import { db, auth } from "../firebase";
+import Colors from "../Colors";
 
-import { useTheme } from "../theme";
-import { getItemAmount } from "../utils";
+import { useNavigation } from "../hooks/useHomeNavigation";
+import { useConfetti } from "../hooks/useConfetti";
 
-import ActionSheetButton from "../components/ActionSheetButton";
-import { Text } from "../components/Text";
-import SavingsCard from "../components/SavingsCard";
-import Button from "../components/Button";
+import { useItemsQuery } from "../queries/useItemsQuery";
 
-import { RootStackParamList, SavingsItem, SavingsItemAmount } from "../types";
+import Item from "../components/Item";
+import { emitter } from "../emitter";
 
 export default function Home() {
+  const { navigate } = useNavigation<"Home">();
   const { colors } = useTheme();
-  const { navigate } = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const [user] = useAuthState(auth);
-  const [value, loading, error] = useCollection(
-    query(collection(db, "items-v2"), where("uid", "==", user?.uid), orderBy("title", "asc")),
-    {
-      snapshotListenOptions: { includeMetadataChanges: true },
-    }
-  );
+  const { confettiRef, startConfetti } = useConfetti();
+  const itemsQuery = useItemsQuery();
 
-  const data = useMemo(() => {
-    const items: SavingsItem[] = [];
+  useEffect(() => {
+    emitter.on("confetti", startConfetti);
 
-    if (!loading && !error) {
-      value?.docs.map((doc) => {
-        const itemData = doc.data();
+    return () => {
+      emitter.off("confetti");
+    };
+  }, [startConfetti]);
 
-        items.push({
-          id: doc.id,
-          amounts: [] as SavingsItemAmount[],
-          ...itemData,
-        } as SavingsItem);
-      });
+  const totalAmount = useMemo(() => {
+    if (!itemsQuery.isSuccess || !itemsQuery.data) {
+      return undefined;
     }
 
-    return items;
-  }, [error, loading, value?.docs]);
-
-  const totalSaved = useMemo(() => {
-    const amount = data.reduce((acc, cur) => {
-      return acc + getItemAmount(cur);
+    const amountInCents = itemsQuery.data.reduce((acc, cur) => {
+      return (
+        acc +
+        cur.amounts.reduce((acc, cur) => {
+          switch (cur.type) {
+            case "deposit":
+              return acc + cur.amount;
+            case "withdrawal":
+              return acc - cur.amount;
+            default:
+              return acc;
+          }
+        }, 0)
+      );
     }, 0);
 
-    const value = Dinero({ amount: parseFloat(amount.toFixed(2)) * 100, currency: "USD" });
+    const formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
 
-    return value.hasSubUnits() ? value.toFormat("$0,0.00") : value.toFormat("$0,0");
-  }, [data]);
-
-  const { bottom } = useSafeAreaInsets();
-
-  if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+    return formatter.format(amountInCents / 100);
+  }, [itemsQuery]);
 
   return (
     <>
-      <FlatList
-        ListHeaderComponent={() => {
-          if (data.length === 0) {
-            return null;
-          }
+      <SafeAreaView
+        mode="padding"
+        edges={["top", "bottom"]}
+        style={{ flex: 1 }}
+      >
+        <MotiView
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            type: "timing",
+            duration: 550,
+          }}
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={[
+              iOSUIKit.largeTitleEmphasizedWhite,
+              {
+                marginTop: 16,
+                marginBottom: 16,
+                marginLeft: 16,
+              },
+            ]}
+          >
+            {itemsQuery.isSuccess &&
+            itemsQuery.data &&
+            itemsQuery.data.length > 0
+              ? `${totalAmount}`
+              : "Items"}
+          </Text>
+          <Pressable
+            onPress={() => navigate("Settings")}
+            style={{
+              backgroundColor: colors.card,
+              borderRadius: 32 / 2,
 
-          return (
-            <LinearGradient
-              colors={["rgb(0,0,0)", "rgb(0,0,0)", "rgba(0,0,0,0.8)", "rgba(0,0,0,0)"]}
-              locations={[0, 0.6, 0.8, 1]}
+              width: 32,
+              height: 32,
+
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Ionicons
+              name="ios-cog"
+              size={20}
               style={{
-                alignItems: "center",
-                paddingVertical: 120,
+                marginLeft: 2,
               }}
-            >
-              <Text size={24} weight="medium" color="textDim">
-                Total Saved
-              </Text>
-              <Text size={48} weight="semibold" color="text">
-                {totalSaved}
-              </Text>
-            </LinearGradient>
-          );
-        }}
-        data={data}
-        renderItem={({ item, index }) => {
-          return (
-            <SavingsCard
-              item={item}
-              style={[
-                index === 0
-                  ? {
-                      borderTopLeftRadius: 8,
-                      borderTopRightRadius: 8,
-                      borderBottomLeftRadius: 0,
-                      borderBottomRightRadius: 0,
-                    }
-                  : index + 1 === data.length
-                  ? {
-                      borderTopLeftRadius: 0,
-                      borderTopRightRadius: 0,
-                      borderBottomLeftRadius: 8,
-                      borderBottomRightRadius: 8,
-                    }
-                  : undefined,
-                data.length === 1
-                  ? {
-                      borderBottomLeftRadius: 8,
-                      borderBottomRightRadius: 8,
-                    }
-                  : undefined,
-              ]}
+              color={Color("#fff").hsl().darken(0.6).string()}
             />
-          );
-        }}
-        keyExtractor={({ id }) => id}
-        ItemSeparatorComponent={() => (
-          <View style={{ height: 1, backgroundColor: colors.border }} />
-        )}
-        ListEmptyComponent={() => {
-          return (
+          </Pressable>
+        </MotiView>
+        <MotiView
+          from={{ opacity: 0, transform: [{ translateY: 8, scale: 0.7 }] }}
+          animate={{ opacity: 1, transform: [{ translateY: 0, scale: 1 }] }}
+          transition={{
+            type: "timing",
+            duration: 350,
+          }}
+          style={{
+            flex: 1,
+            backgroundColor: colors.card,
+            borderRadius: 24,
+            paddingVertical: 12,
+            position: "relative",
+          }}
+        >
+          {itemsQuery.data?.length === 0 ? (
             <View
               style={{
                 flex: 1,
-                padding: 16,
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Text
-                size={28}
-                weight="semibold"
-                style={{
-                  marginBottom: 24,
-                }}
-              >
-                No items found
-              </Text>
-              <Button
-                onPress={async () => {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  navigate("AddItem");
-                }}
-              >
-                Add Item
-              </Button>
+              <Text style={[iOSUIKit.title3White]}>No Items</Text>
             </View>
-          );
-        }}
-        stickyHeaderIndices={[0]}
-        contentContainerStyle={{
-          flex: 1,
-          marginHorizontal: 16,
-        }}
-      />
-      <Pressable
-        onPress={async () => {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          navigate("AddItem");
-        }}
-        style={({ pressed }) => ({
-          position: "absolute",
-          bottom: bottom > 0 ? bottom : 12,
-          right: 12,
-          width: 56,
-          height: 56,
-          borderRadius: 56 / 2,
-          backgroundColor: pressed ? lighten(0.1, "#3178c6") : "#3178c6",
-          alignItems: "center",
-          justifyContent: "center",
-
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowOpacity: 0.27,
-          shadowRadius: 4.65,
-        })}
-      >
-        <Ionicons
-          name="add"
-          color={"white"}
-          size={32}
-          style={{
-            marginLeft: 2,
-          }}
-        />
-      </Pressable>
-      <ActionSheetButton
-        onPress={async () => {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          ActionSheetIOS.showActionSheetWithOptions(
-            {
-              options: ["Logout", "Cancel"],
-              destructiveButtonIndex: 0,
-              cancelButtonIndex: 1,
-              userInterfaceStyle: "dark",
-            },
-            async (buttonIndex) => {
-              if (buttonIndex === 0) {
-                await signOut(auth);
+          ) : (
+            <ScrollView
+              refreshControl={
+                <RefreshControl
+                  onRefresh={itemsQuery.refetch}
+                  refreshing={itemsQuery.isRefetching}
+                />
               }
-            }
-          );
-        }}
-      />
+              contentContainerStyle={{
+                flex: 1,
+                borderRadius: 24,
+                overflow: "hidden",
+              }}
+            >
+              {itemsQuery.data?.map((item, index) => (
+                <Item
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  amounts={item.amounts}
+                  goal={item.goal}
+                  goalDate={item.goalDate}
+                  style={{
+                    marginBottom:
+                      itemsQuery.data?.length === index + 1 ? undefined : 12,
+                  }}
+                />
+              ))}
+            </ScrollView>
+          )}
+        </MotiView>
+        <MotiView
+          from={{ opacity: 0, transform: [{ translateY: 200 }] }}
+          animate={{ opacity: 1, transform: [{ translateY: 0 }] }}
+          transition={{
+            type: "timing",
+            duration: 750,
+          }}
+          style={{
+            marginTop: 12,
+          }}
+        >
+          <Pressable
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+
+              width: "100%",
+              borderRadius: 24,
+              paddingVertical: 16,
+              paddingHorizontal: 12,
+
+              backgroundColor: Colors.blue,
+            }}
+            onPress={() => navigate("Add")}
+          >
+            <Text
+              allowFontScaling={false}
+              style={[iOSUIKit.bodyEmphasizedWhite, { fontSize: 20 }]}
+            >
+              Add
+            </Text>
+          </Pressable>
+        </MotiView>
+      </SafeAreaView>
+      <Portal>
+        <Confetti ref={confettiRef} confettiCount={100} />
+      </Portal>
     </>
   );
 }

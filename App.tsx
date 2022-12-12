@@ -1,30 +1,27 @@
-import { StatusBar } from "expo-status-bar";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { LogBox } from "react-native";
-
-import useCachedResources from "./hooks/useCachedResources";
-import Navigation from "./navigation";
-
-import "expo-dev-client";
-import "react-native-gesture-handler";
 import "./firebase";
 
-LogBox.ignoreLogs([
-  "AsyncStorage has been extracted",
-  "'SplashScreen.show' has already been called for given view controller",
-]); // Ignore log notification by message
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Host } from "react-native-portalize";
+import { LogBox } from "react-native";
+
+import StackNavigator from "./navigators/Stack";
+
+LogBox.ignoreLogs(["AsyncStorage has been extracted"]);
+
+const client = new QueryClient();
 
 export default function App() {
-  const isLoadingComplete = useCachedResources();
-
-  if (!isLoadingComplete) {
-    return null;
-  } else {
-    return (
+  return (
+    <NavigationContainer theme={DarkTheme}>
       <SafeAreaProvider>
-        <Navigation />
-        <StatusBar />
+        <Host>
+          <QueryClientProvider client={client}>
+            <StackNavigator />
+          </QueryClientProvider>
+        </Host>
       </SafeAreaProvider>
-    );
-  }
+    </NavigationContainer>
+  );
 }
