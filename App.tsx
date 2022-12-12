@@ -7,6 +7,7 @@ import { Host } from "react-native-portalize";
 import { LogBox } from "react-native";
 
 import StackNavigator from "./navigators/Stack";
+import { StatusBar } from "expo-status-bar";
 
 LogBox.ignoreLogs(["AsyncStorage has been extracted"]);
 
@@ -15,6 +16,7 @@ const client = new QueryClient();
 export default function App() {
   return (
     <NavigationContainer theme={DarkTheme}>
+      <StatusBar style="light" />
       <SafeAreaProvider>
         <Host>
           <QueryClientProvider client={client}>

@@ -7,6 +7,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useTheme } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from "@firebase/auth";
 import { z } from "zod";
+import * as SecureStore from "expo-secure-store";
 
 import Colors from "../Colors";
 import Color from "color";
@@ -37,6 +38,15 @@ export default function Login() {
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
+        const curAccounts = await SecureStore.getItemAsync("accounts");
+        let accounts: Record<string, string> = {};
+
+        if (curAccounts !== null) {
+          accounts = JSON.parse(curAccounts);
+        }
+        accounts[email] = password;
+
+        await SecureStore.setItemAsync("accounts", JSON.stringify(accounts));
       } catch {
         //
       } finally {

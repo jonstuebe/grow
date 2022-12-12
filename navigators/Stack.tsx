@@ -14,6 +14,7 @@ import ItemDeposit from "../screens/ItemDeposit";
 import ItemWithdrawal from "../screens/ItemWithdrawal";
 import Settings from "../screens/Settings";
 import ForgotPassword from "../screens/ForgotPassword";
+import SwitchAccounts from "../screens/SwitchAccounts";
 
 import type { ItemSerializedType } from "../components/Item";
 
@@ -26,7 +27,9 @@ export type StackParamList = {
   Add: undefined;
   Deposit: ItemSerializedType;
   Withdrawal: ItemSerializedType;
+
   Settings: undefined;
+  SwitchAccounts: undefined;
 };
 
 const Stack = createNativeStackNavigator<StackParamList>();
@@ -111,6 +114,13 @@ export default function StackNavigator() {
             />
             <Stack.Screen component={ItemDeposit} name="Deposit" />
             <Stack.Screen component={ItemWithdrawal} name="Withdrawal" />
+            <Stack.Screen
+              component={SwitchAccounts}
+              name="SwitchAccounts"
+              options={{
+                title: "Switch Accounts",
+              }}
+            />
           </Stack.Group>
           <Stack.Screen
             component={Settings}
