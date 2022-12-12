@@ -13,6 +13,7 @@
     "restore:prod": "yarn ts scripts/restore -e production",
     "publish:dev": "eas update --branch default",
     "publish:prod": "eas update --branch production",
+    "build:preview": "eas build -p ios --profile preview --local",
     "build:prod": "eas build -p ios --profile production --auto-submit"
   },
   "dependencies": {

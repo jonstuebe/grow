@@ -22,7 +22,7 @@
         "usesNonExemptEncryption": false
       },
       "supportsTablet": false,
-      "buildNumber": "18",
+      "buildNumber": "19",
       "bundleIdentifier": "com.jonstuebe.grow"
     },
     "android": {
