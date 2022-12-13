@@ -56,23 +56,32 @@ export default function SwitchAccounts() {
       >
         <Section roundedCorners hideSurroundingSeparators>
           {query.data ? (
-            query.data.map(({ email, password }, index) => {
-              return (
-                <Cell
-                  key={index}
-                  title={email}
-                  accessory="DisclosureIndicator"
-                  onPress={() => {
-                    signInWithEmailAndPassword(auth, email, password).then(
-                      () => {
-                        queryClient.invalidateQueries(getItemsQueryKey());
-                        navigate("Home");
-                      }
-                    );
-                  }}
-                />
-              );
-            })
+            <>
+              {query.data.map(({ email, password }, index) => {
+                return (
+                  <Cell
+                    key={index}
+                    title={email}
+                    accessory="DisclosureIndicator"
+                    onPress={() => {
+                      signInWithEmailAndPassword(auth, email, password).then(
+                        () => {
+                          queryClient.invalidateQueries(getItemsQueryKey());
+                          navigate("Home");
+                        }
+                      );
+                    }}
+                  />
+                );
+              })}
+              <Cell
+                title="Add Account"
+                accessory="DisclosureIndicator"
+                onPress={() => {
+                  signOut(auth).catch(() => {});
+                }}
+              />
+            </>
           ) : (
             <ActivityIndicator size="large" />
           )}
