@@ -79,7 +79,7 @@ export default function Add() {
         title,
         initialAmount,
         isGoal,
-        goal,
+        goalAmount: goal,
         goalDate,
       });
 
@@ -104,6 +104,7 @@ export default function Add() {
         amounts: serializedItem.amounts,
         uid: auth.currentUser?.uid,
       });
+
       emitter.emit("confetti");
       await client.invalidateQueries(getItemsQueryKey());
       goBack();

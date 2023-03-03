@@ -1,3 +1,4 @@
+import "expo-dev-client";
 import "./firebase";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";

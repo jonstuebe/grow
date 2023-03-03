@@ -6,13 +6,18 @@
     "preview": {
       "releaseChannel": "preview",
       "distribution": "internal",
+      "developmentClient": true,
       "ios": {
+        "resourceClass": "m1-medium",
         "simulator": true
       }
     },
     "production": {
       "distribution": "store",
-      "releaseChannel": "production"
+      "releaseChannel": "production",
+      "ios": {
+        "resourceClass": "m1-medium"
+      }
     }
   },
   "submit": {

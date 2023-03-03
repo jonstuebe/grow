@@ -13,6 +13,7 @@ import Colors from "../Colors";
 import Color from "color";
 import { useNavigation } from "../hooks/useHomeNavigation";
 import { auth } from "../firebase";
+import { useAccountsQuery } from "../queries/useAccountsQuery";
 
 const schema = z.object({
   email: z.string().email(),
@@ -22,6 +23,7 @@ const schema = z.object({
 export default function Login() {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
+  const accountsQuery = useAccountsQuery();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

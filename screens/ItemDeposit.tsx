@@ -7,7 +7,6 @@ import { Pressable, TextInput, View } from "react-native";
 import { Cell, Section, TableView } from "react-native-tableview-simple";
 import { iOSColors } from "react-native-typography";
 import { z } from "zod";
-import { emitter } from "../emitter";
 
 import { db } from "../firebase";
 import { useNavigation } from "../hooks/useHomeNavigation";
@@ -46,7 +45,6 @@ export default function ItemDeposit() {
         ],
       });
       await queryClient.invalidateQueries(getItemsQueryKey());
-      emitter.emit("confetti");
       goBack();
     } catch (e) {
       setIsError(true);

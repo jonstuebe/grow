@@ -4,6 +4,7 @@ import { useTheme } from "@react-navigation/native";
 import { useQueryClient } from "@tanstack/react-query";
 import Color from "color";
 import { parseISO } from "date-fns";
+import { MotiView } from "moti";
 import React, { useMemo } from "react";
 import { Pressable, StyleProp, Text, View, ViewStyle } from "react-native";
 import SwipeableItem from "react-native-swipeable-item";
@@ -117,6 +118,11 @@ export default function Item({ style, ...item }: ItemProps) {
     };
   }, [item, goal]);
 
+  const percSaved = useMemo(
+    () => (goal ? (getTotalAmountSavedInCents(item) / goal) * 100 : 0),
+    [goal, item]
+  );
+
   return (
     <View
       style={[
@@ -185,12 +191,34 @@ export default function Item({ style, ...item }: ItemProps) {
                 alignSelf: "flex-start",
                 flexDirection: "row",
                 alignItems: "center",
-                backgroundColor: colors.border,
-                paddingHorizontal: 8,
-                paddingVertical: 4,
+                backgroundColor:
+                  percSaved >= 100
+                    ? Color(iOSColors.green).hsl().darken(0.35).string()
+                    : colors.border,
+
                 borderRadius: 8,
+                overflow: "hidden",
+                position: "relative",
               }}
             >
+              {goal && percSaved < 100 ? (
+                <MotiView
+                  from={{ width: "0%" }}
+                  animate={{
+                    width: `${percSaved}%`,
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    height: "100%",
+                    backgroundColor: Color(colors.border)
+                      .hsl()
+                      .lighten(0.6)
+                      .string(),
+                  }}
+                />
+              ) : null}
               <Text
                 allowFontScaling={false}
                 style={[
@@ -198,8 +226,13 @@ export default function Item({ style, ...item }: ItemProps) {
                   {
                     fontSize: 14,
                     lineHeight: 16,
-                    color: Color("#ffffff").hsl().darken(0.3).string(),
+                    color:
+                      percSaved >= 100
+                        ? "white"
+                        : Color("#ffffff").hsl().darken(0.3).string(),
                     letterSpacing: -0.2,
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
                   },
                 ]}
               >
